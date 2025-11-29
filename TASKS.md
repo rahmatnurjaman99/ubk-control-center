@@ -1,0 +1,62 @@
+# Task List: School Management System (Filament)
+
+- [ ] **Project Setup**
+    - [ ] Verify Filament installation and version <!-- id: 0 -->
+    - [ ] Configure database connection <!-- id: 1 -->
+    - [ ] Install necessary plugins (if any) <!-- id: 2 -->
+
+- [ ] **Database & Models**
+    - [x] Create `AcademicYear` model and migration <!-- id: 3 -->
+    - [x] Create `Staff` model and migration (linked to `User`) <!-- id: 5 -->
+    - [x] Create `Guardian` model and migration (linked to `User`) <!-- id: 43 -->
+    - [x] Create `Student` model and migration (linked to `Guardian`) <!-- id: 4 -->
+    - [x] Create `SubjectCategory` model and migration <!-- id: 46 -->
+    - [ ] Create `Subject` model and migration <!-- id: 6 -->
+    - [x] Create `Classroom` model and migration (with School Level) <!-- id: 7 -->
+    - [x] Create `ClassroomStaff` (Assignment History) model and migration <!-- id: 26 -->
+    - [x] Create `RegistrationIntake` model and migration <!-- id: 49 -->
+    - [ ] Create `StaffAttendance` model and migration <!-- id: 31 -->
+    - [ ] Create `SalaryStructure` model and migration <!-- id: 33 -->
+    - [ ] Create `Payroll` model and migration <!-- id: 34 -->
+    - [ ] Create `Fee` model and migration (Tuition, etc.) <!-- id: 35 -->
+    - [ ] Create `Transaction` model and migration (Payments) <!-- id: 36 -->
+    - [ ] Create `Schedule` / `Timetable` model and migration <!-- id: 8 -->
+    - [ ] Create `Attendance` model and migration <!-- id: 9 -->
+    - [ ] Create `Grade` / `Mark` model and migration <!-- id: 10 -->
+
+- [ ] **Filament Resources**
+    - [x] Create `AcademicYearResource` <!-- id: 11 -->
+    - [x] Create `StaffResource` <!-- id: 13 -->
+    - [x] Create `GuardianResource` <!-- id: 44 -->
+    - [x] Create `StudentResource` <!-- id: 12 -->
+    - [x] Create `SubjectCategoryResource` <!-- id: 47 -->
+        - [x] Implement Subjects RelationManager <!-- id: 48 -->
+    - [ ] Create `SubjectResource` <!-- id: 14 -->
+    - [x] Create `ClassroomResource` <!-- id: 15 -->
+        - [x] Implement RelationManager for Teacher Assignments (History) <!-- id: 27 -->
+    - [x] Create `RegistrationIntakeResource` <!-- id: 50 -->
+    - [ ] Create `StaffAttendanceResource` <!-- id: 32 -->
+    - [ ] Create `PayrollResource` <!-- id: 37 -->
+    - [ ] Create `FeeResource` <!-- id: 38 -->
+    - [ ] Create `TransactionResource` (Income & Outcome) <!-- id: 39 -->
+    - [ ] Create `FinanceStatsOverview` Widget (Dashboard) <!-- id: 42 -->
+    - [ ] Create `ScheduleResource` <!-- id: 16 -->
+        - [ ] Implement timetable view <!-- id: 17 -->
+    - [ ] Create `AttendanceResource` <!-- id: 18 -->
+    - [ ] Create `GradeResource` <!-- id: 19 -->
+
+- [ ] **Advanced Features & Logic**
+    - [x] Implement User Roles & Permissions (Admin, Teacher, Student, Parent) <!-- id: 20 -->
+    - [ ] Implement "Parent View" (Scoped resources for Guardians) <!-- id: 45 -->
+    - [x] Implement "Promote Student" logic <!-- id: 21 -->
+    - [ ] Implement "Generate Timetable" logic (if automated) <!-- id: 22 -->
+
+- [ ] **Code Quality & Refactoring**
+    - [ ] Ensure `strict_types=1` in all files <!-- id: 23 -->
+    - [ ] Use Enums for:
+        - [ ] `SchoolLevel` (PAUD, TK, SD) <!-- id: 28 -->
+        - [ ] `StaffRole` (Teacher, Admin, etc.) <!-- id: 29 -->
+        - [x] `AssignmentRole` (Homeroom, Subject Teacher) <!-- id: 30 -->
+        - [ ] `PaymentStatus` (Paid, Pending, Overdue) <!-- id: 40 -->
+        - [ ] `TransactionType` (Income, Expense) <!-- id: 41 -->
+    - [ ] Review code against Filament best practices <!-- id: 25 -->
