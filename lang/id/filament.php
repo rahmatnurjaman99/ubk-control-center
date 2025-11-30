@@ -9,6 +9,8 @@ return [
         'people_staff' => 'Kepegawaian',
         'people_students' => 'Kesiswaan',
         'admissions' => 'Pendaftaran',
+        'finance' => 'Keuangan',
+        'attendance' => 'Kehadiran',
     ],
 
     'school_levels' => [
@@ -398,6 +400,252 @@ return [
         'panel_user' => 'Pengguna panel',
     ],
 
+    'transactions' => [
+        'navigation' => [
+            'label' => 'Transaksi',
+        ],
+        'model' => [
+            'singular' => 'Transaksi',
+            'plural' => 'Transaksi',
+        ],
+        'fields' => [
+            'reference' => 'Referensi',
+            'label' => 'Judul',
+            'type' => 'Tipe',
+            'category' => 'Kategori',
+            'amount' => 'Jumlah',
+            'currency' => 'Mata uang',
+            'payment_status' => 'Status pembayaran',
+            'payment_method' => 'Metode bayar',
+            'due_date' => 'Jatuh tempo',
+            'paid_at' => 'Dibayar pada',
+            'academic_year' => 'Tahun ajaran',
+            'counterparty_name' => 'Pihak terkait',
+            'notes' => 'Catatan',
+            'source' => 'Terhubung ke',
+            'recorded_by' => 'Dicatat oleh',
+        ],
+        'table' => [
+            'reference' => 'Referensi',
+            'label' => 'Judul',
+            'type' => 'Tipe',
+            'category' => 'Kategori',
+            'amount' => 'Jumlah',
+            'payment_status' => 'Pembayaran',
+            'paid_at' => 'Bayar pada',
+            'recorded_by' => 'Dicatat oleh',
+            'updated_at' => 'Diubah',
+        ],
+        'filters' => [
+            'type' => 'Tipe',
+            'payment_status' => 'Status pembayaran',
+            'academic_year' => 'Tahun ajaran',
+            'trashed' => 'Data terhapus',
+        ],
+    ],
+
+    'fees' => [
+        'navigation' => [
+            'label' => 'Tagihan Siswa',
+        ],
+        'model' => [
+            'singular' => 'Tagihan',
+            'plural' => 'Tagihan',
+        ],
+        'fields' => [
+            'reference' => 'Referensi',
+            'title' => 'Judul',
+            'type' => 'Jenis tagihan',
+            'amount' => 'Jumlah',
+            'currency' => 'Mata uang',
+            'due_date' => 'Jatuh tempo',
+            'status' => 'Status',
+            'paid_at' => 'Dibayar pada',
+            'student' => 'Siswa',
+            'academic_year' => 'Tahun ajaran',
+            'transaction' => 'Transaksi',
+            'description' => 'Deskripsi',
+        ],
+        'table' => [
+            'reference' => 'Referensi',
+            'title' => 'Judul',
+            'student' => 'Siswa',
+            'type' => 'Jenis',
+            'amount' => 'Jumlah',
+            'status' => 'Status',
+            'due_date' => 'Jatuh tempo',
+            'paid_at' => 'Bayar pada',
+        ],
+        'filters' => [
+            'type' => 'Jenis',
+            'status' => 'Status',
+            'academic_year' => 'Tahun ajaran',
+            'trashed' => 'Data terhapus',
+        ],
+        'types' => [
+            'tuition' => 'SPP',
+            'registration' => 'Registrasi',
+            'uniform' => 'Seragam',
+            'misc' => 'Lainnya',
+        ],
+        'statuses' => [
+            'pending' => 'Menunggu',
+            'partial' => 'Sebagian dibayar',
+            'paid' => 'Lunas',
+            'cancelled' => 'Dibatalkan',
+        ],
+        'promotion' => [
+            'title' => 'Biaya sekolah :grade (:year)',
+            'description' => 'Dibuat otomatis setelah siswa naik kelas untuk :year.',
+        ],
+    ],
+
+    'fee_templates' => [
+        'navigation' => [
+            'label' => 'Template Biaya Kelas',
+        ],
+        'model' => [
+            'singular' => 'Template biaya',
+            'plural' => 'Template biaya',
+        ],
+        'sections' => [
+            'details' => 'Detail biaya',
+        ],
+        'fields' => [
+            'title' => 'Judul',
+            'grade_level' => 'Jenjang',
+            'type' => 'Jenis tagihan',
+            'amount' => 'Jumlah',
+            'currency' => 'Mata uang',
+            'due_in_days' => 'Jatuh tempo (hari)',
+            'is_active' => 'Aktif',
+            'description' => 'Deskripsi',
+        ],
+        'table' => [
+            'title' => 'Judul',
+            'grade_level' => 'Jenjang',
+            'type' => 'Jenis',
+            'amount' => 'Jumlah',
+            'due_in_days' => 'Tempo',
+            'days' => 'hari',
+            'is_active' => 'Aktif',
+        ],
+        'filters' => [
+            'grade_level' => 'Jenjang',
+            'type' => 'Jenis',
+            'is_active' => 'Status',
+            'trashed' => 'Data terhapus',
+        ],
+    ],
+
+    'transaction_types' => [
+        'income' => 'Pemasukan',
+        'expense' => 'Pengeluaran',
+    ],
+
+    'payment_statuses' => [
+        'pending' => 'Menunggu',
+        'partial' => 'Sebagian dibayar',
+        'paid' => 'Lunas',
+        'cancelled' => 'Dibatalkan',
+    ],
+
+    'attendance' => [
+        'statuses' => [
+            'present' => 'Hadir',
+            'absent' => 'Alpa',
+            'late' => 'Terlambat',
+            'excused' => 'Izin',
+            'sick' => 'Sakit',
+        ],
+    ],
+
+    'student_attendances' => [
+        'navigation' => [
+            'label' => 'Absensi Siswa',
+        ],
+        'model' => [
+            'singular' => 'Absensi siswa',
+            'plural' => 'Absensi siswa',
+        ],
+        'sections' => [
+            'details' => 'Detail absensi',
+            'notes' => 'Catatan',
+        ],
+        'fields' => [
+            'student' => 'Siswa',
+            'academic_year' => 'Tahun ajaran',
+            'classroom' => 'Kelas',
+            'recorded_on' => 'Tanggal',
+            'status' => 'Status',
+            'checked_in_at' => 'Jam masuk',
+            'checked_out_at' => 'Jam pulang',
+            'notes' => 'Catatan',
+        ],
+        'table' => [
+            'recorded_on' => 'Tanggal',
+            'student' => 'Siswa',
+            'classroom' => 'Kelas',
+            'status' => 'Status',
+            'checked_in_at' => 'Masuk',
+            'checked_out_at' => 'Pulang',
+        ],
+        'filters' => [
+            'status' => 'Status',
+            'student' => 'Siswa',
+            'classroom' => 'Kelas',
+            'recorded_period' => 'Rentang tanggal',
+            'from' => 'Dari',
+            'until' => 'Sampai',
+        ],
+        'actions' => [
+            'generate' => 'Siapkan daftar hadir harian',
+            'generate_success' => ':count siswa siap dicatat.',
+        ],
+    ],
+
+    'staff_attendances' => [
+        'navigation' => [
+            'label' => 'Absensi Pegawai',
+        ],
+        'model' => [
+            'singular' => 'Absensi pegawai',
+            'plural' => 'Absensi pegawai',
+        ],
+        'sections' => [
+            'details' => 'Detail absensi',
+            'notes' => 'Catatan',
+        ],
+        'fields' => [
+            'staff' => 'Pegawai',
+            'recorded_on' => 'Tanggal',
+            'status' => 'Status',
+            'checked_in_at' => 'Jam masuk',
+            'checked_out_at' => 'Jam pulang',
+            'location' => 'Lokasi',
+            'notes' => 'Catatan',
+        ],
+        'table' => [
+            'recorded_on' => 'Tanggal',
+            'staff' => 'Pegawai',
+            'status' => 'Status',
+            'location' => 'Lokasi',
+            'checked_in_at' => 'Masuk',
+            'checked_out_at' => 'Pulang',
+        ],
+        'filters' => [
+            'status' => 'Status',
+            'staff' => 'Pegawai',
+            'recorded_period' => 'Rentang tanggal',
+            'from' => 'Dari',
+            'until' => 'Sampai',
+        ],
+        'actions' => [
+            'generate' => 'Siapkan daftar hadir harian',
+            'generate_success' => ':count pegawai siap dicatat.',
+        ],
+    ],
+
     'registration_intakes' => [
         'navigation' => [
             'label' => 'Pendaftaran',
@@ -502,6 +750,15 @@ return [
             'target_classroom' => 'Kelas tujuan (opsional)',
             'success_promoted' => 'Siswa naik ke :grade',
             'success_graduated' => 'Siswa dinyatakan lulus.',
+            'promotion_fees_created' => 'Tagihan dibuat: :fees.',
+            'eligibility_status' => 'Status kelayakan',
+            'eligibility_ready' => 'Layak naik kelas (semua tagihan lunas).',
+            'eligibility_pending_fees' => 'Masih ada tagihan. Perlu persetujuan sebelum naik kelas.',
+            'eligibility_pending_scores' => 'Menunggu data kelayakan akademik.',
+            'outstanding_fees' => 'Tagihan tertunggak',
+            'outstanding_fees_message' => ':count tagihan tertunggak total :amount. Pastikan mendapat persetujuan.',
+            'override_outstanding_fees' => 'Izinkan naik kelas walau masih ada tagihan.',
+            'outstanding_fees_confirmation_required' => 'Konfirmasi diperlukan sebelum melanjutkan dengan tagihan tertunggak.',
         ],
     ],
 ];

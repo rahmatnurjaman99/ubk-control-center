@@ -9,6 +9,7 @@ use App\Enums\StudentStatus;
 use App\Models\AcademicYear;
 use App\Models\Classroom;
 use App\Models\Student;
+use App\Support\Finance\PromotionFeeGenerator;
 use Illuminate\Database\DatabaseManager;
 use Illuminate\Support\Carbon;
 use RuntimeException;
@@ -17,6 +18,7 @@ class PromoteStudentAction
 {
     public function __construct(
         private readonly DatabaseManager $db,
+        private readonly PromotionFeeGenerator $promotionFeeGenerator,
     ) {
     }
 
@@ -61,6 +63,7 @@ class PromoteStudentAction
                         assignment: null,
                         gradeLevel: null,
                         graduated: true,
+                        promotionFees: [],
                     );
                 }
 
@@ -98,11 +101,20 @@ class PromoteStudentAction
 
                 $student->save();
 
+                $student->refresh();
+
+                $promotionFees = $this->promotionFeeGenerator->createForPromotion(
+                    student: $student,
+                    gradeLevel: $gradeToAssign,
+                    academicYear: $targetAcademicYear,
+                );
+
                 return new StudentPromotionResult(
-                    student: $student->refresh(),
+                    student: $student,
                     assignment: $assignment,
                     gradeLevel: $gradeToAssign,
                     graduated: false,
+                    promotionFees: $promotionFees,
                 );
             },
         );

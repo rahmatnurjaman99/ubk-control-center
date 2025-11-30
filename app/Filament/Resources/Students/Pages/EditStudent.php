@@ -8,16 +8,22 @@ use App\Enums\GradeLevel;
 use App\Filament\Resources\Students\StudentResource;
 use App\Models\AcademicYear;
 use App\Models\Classroom;
+use App\Models\Fee;
 use App\Support\Students\PromoteStudentAction;
+use App\Support\Students\StudentPromotionResult;
+use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ForceDeleteAction;
-use Filament\Actions\Action;
 use Filament\Actions\RestoreAction;
+use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Get;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Notifications\Notification;
-use Filament\Support\Icons\Heroicon;
 use Filament\Resources\Pages\EditRecord;
+use Filament\Support\Icons\Heroicon;
+use Illuminate\Support\Collection;
+use Illuminate\Validation\ValidationException;
 
 class EditStudent extends EditRecord
 {
@@ -39,10 +45,10 @@ class EditStudent extends EditRecord
             ->label(__('filament.students.actions.promote'))
             ->icon(Heroicon::OutlinedArrowTrendingUp)
             ->color('primary')
-            ->form([
+            ->schema([
                 Select::make('academic_year_id')
                     ->label(__('filament.students.actions.target_academic_year'))
-                    ->options(fn (): array => AcademicYear::query()
+                    ->options(fn(): array => AcademicYear::query()
                         ->orderByDesc('starts_on')
                         ->pluck('name', 'id')
                         ->all())
@@ -54,8 +60,8 @@ class EditStudent extends EditRecord
                     ->options(GradeLevel::options())
                     ->searchable()
                     ->nullable()
-                    ->default(fn () => $this->record->next_grade_level?->value)
-                    ->required(fn (): bool => $this->record->determineCurrentGradeLevel() === null),
+                    ->default(fn() => $this->record->next_grade_level?->value)
+                    ->required(fn(): bool => $this->record->determineCurrentGradeLevel() === null),
                 Select::make('classroom_id')
                     ->label(__('filament.students.actions.target_classroom'))
                     ->options(function (Get $get): array {
@@ -77,10 +83,28 @@ class EditStudent extends EditRecord
                     })
                     ->searchable()
                     ->preload()
-                    ->hidden(fn (Get $get): bool => blank($get('academic_year_id')))
+                    ->hidden(fn(Get $get): bool => blank($get('academic_year_id')))
                     ->columnSpanFull(),
+                TextEntry::make('eligibility_status')
+                    ->label(__('filament.students.actions.eligibility_status'))
+                    ->state(fn(): string => $this->getEligibilityMessage())
+                    ->columnSpanFull(),
+                TextEntry::make('outstanding_fees')
+                    ->label(__('filament.students.actions.outstanding_fees'))
+                    ->state(fn(): string => $this->formatOutstandingFeesMessage())
+                    ->columnSpanFull()
+                    ->hidden(fn(): bool => ! $this->hasOutstandingFees()),
+                Checkbox::make('override_outstanding_fees')
+                    ->label(__('filament.students.actions.override_outstanding_fees'))
+                    ->hidden(fn(): bool => ! $this->hasOutstandingFees()),
             ])
             ->action(function (array $data, PromoteStudentAction $promoter): void {
+                if ($this->hasOutstandingFees() && empty($data['override_outstanding_fees'])) {
+                    throw ValidationException::withMessages([
+                        'override_outstanding_fees' => __('filament.students.actions.outstanding_fees_confirmation_required'),
+                    ]);
+                }
+
                 $student = $this->record;
 
                 $academicYear = AcademicYear::query()->findOrFail($data['academic_year_id']);
@@ -102,12 +126,78 @@ class EditStudent extends EditRecord
                         'grade' => $result->gradeLevel?->label() ?? '',
                     ]);
 
-                Notification::make()
+                $body = $this->resolvePromotionFeeBody($result);
+
+                $notification = Notification::make()
                     ->title($message)
-                    ->success()
-                    ->send();
+                    ->success();
+
+                if ($body !== null) {
+                    $notification->body($body);
+                }
+
+                $notification->send();
 
                 $this->record->refresh();
             });
+    }
+
+    private function getEligibilityMessage(): string
+    {
+        if ($this->isEligibleForPromotion()) {
+            return __('filament.students.actions.eligibility_ready');
+        }
+
+        if ($this->hasOutstandingFees()) {
+            return __('filament.students.actions.eligibility_pending_fees');
+        }
+
+        return __('filament.students.actions.eligibility_pending_scores');
+    }
+
+    private function resolvePromotionFeeBody(StudentPromotionResult $result): ?string
+    {
+        if ($result->promotionFees === []) {
+            return null;
+        }
+
+        $formatted = collect($result->promotionFees)
+            ->map(fn(Fee $fee): string => $fee->reference . ' (' . $this->formatCurrency((float) $fee->amount) . ')')
+            ->join(', ');
+
+        return __('filament.students.actions.promotion_fees_created', [
+            'fees' => $formatted,
+        ]);
+    }
+
+    private function formatOutstandingFeesMessage(): string
+    {
+        $fees = $this->getOutstandingFees();
+        $total = $fees->sum('amount');
+
+        return __('filament.students.actions.outstanding_fees_message', [
+            'count' => $fees->count(),
+            'amount' => $this->formatCurrency((float) $total),
+        ]);
+    }
+
+    private function getOutstandingFees(): Collection
+    {
+        return $this->record->getOutstandingFees();
+    }
+
+    private function hasOutstandingFees(): bool
+    {
+        return $this->record->hasOutstandingFees();
+    }
+
+    private function isEligibleForPromotion(): bool
+    {
+        return ! $this->hasOutstandingFees();
+    }
+
+    private function formatCurrency(float $amount): string
+    {
+        return 'IDR ' . number_format($amount, 0);
     }
 }

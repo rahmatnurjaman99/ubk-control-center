@@ -67,4 +67,12 @@ class Staff extends Model
     {
         return $this->hasMany(ClassroomStaff::class);
     }
+
+    /**
+     * @return HasMany<StaffAttendance>
+     */
+    public function attendances(): HasMany
+    {
+        return $this->hasMany(StaffAttendance::class);
+    }
 }

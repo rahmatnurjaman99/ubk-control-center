@@ -4,13 +4,15 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\FeeStatus;
 use App\Enums\GradeLevel;
 use App\Enums\StudentStatus;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Collection;
 
 class Student extends Model
 {
@@ -72,6 +74,48 @@ class Student extends Model
     public function classroomAssignments(): HasMany
     {
         return $this->hasMany(ClassroomAssignment::class);
+    }
+
+    /**
+     * @return HasMany<StudentAttendance>
+     */
+    public function attendances(): HasMany
+    {
+        return $this->hasMany(StudentAttendance::class);
+    }
+
+    /**
+     * @return HasMany<Fee>
+     */
+    public function fees(): HasMany
+    {
+        return $this->hasMany(Fee::class);
+    }
+
+    /**
+     * @return HasMany<Fee>
+     */
+    public function outstandingFees(): HasMany
+    {
+        return $this->fees()->whereIn('status', [
+            FeeStatus::Pending,
+            FeeStatus::Partial,
+        ]);
+    }
+
+    public function hasOutstandingFees(): bool
+    {
+        return $this->outstandingFees()->exists();
+    }
+
+    /**
+     * @return Collection<int, Fee>
+     */
+    public function getOutstandingFees(): Collection
+    {
+        return $this->outstandingFees()
+            ->orderBy('due_date')
+            ->get();
     }
 
     public function determineCurrentGradeLevel(): ?GradeLevel

@@ -9,6 +9,8 @@ return [
         'people_staff' => 'Staff & HR',
         'people_students' => 'Students & Guardians',
         'admissions' => 'Admissions',
+        'finance' => 'Finance',
+        'attendance' => 'Attendance',
     ],
 
     'school_levels' => [
@@ -398,6 +400,252 @@ return [
         'panel_user' => 'Panel User',
     ],
 
+    'transactions' => [
+        'navigation' => [
+            'label' => 'Transactions',
+        ],
+        'model' => [
+            'singular' => 'Transaction',
+            'plural' => 'Transactions',
+        ],
+        'fields' => [
+            'reference' => 'Reference',
+            'label' => 'Title',
+            'type' => 'Type',
+            'category' => 'Category',
+            'amount' => 'Amount',
+            'currency' => 'Currency',
+            'payment_status' => 'Payment status',
+            'payment_method' => 'Payment method',
+            'due_date' => 'Due date',
+            'paid_at' => 'Paid at',
+            'academic_year' => 'Academic year',
+            'counterparty_name' => 'Counterparty',
+            'notes' => 'Notes',
+            'source' => 'Linked record',
+            'recorded_by' => 'Recorded by',
+        ],
+        'table' => [
+            'reference' => 'Reference',
+            'label' => 'Title',
+            'type' => 'Type',
+            'category' => 'Category',
+            'amount' => 'Amount',
+            'payment_status' => 'Payment',
+            'paid_at' => 'Paid at',
+            'recorded_by' => 'Recorded by',
+            'updated_at' => 'Updated at',
+        ],
+        'filters' => [
+            'type' => 'Type',
+            'payment_status' => 'Payment status',
+            'academic_year' => 'Academic year',
+            'trashed' => 'Deleted records',
+        ],
+    ],
+
+    'fees' => [
+        'navigation' => [
+            'label' => 'Student Fees',
+        ],
+        'model' => [
+            'singular' => 'Fee',
+            'plural' => 'Fees',
+        ],
+        'fields' => [
+            'reference' => 'Reference',
+            'title' => 'Title',
+            'type' => 'Fee type',
+            'amount' => 'Amount',
+            'currency' => 'Currency',
+            'due_date' => 'Due date',
+            'status' => 'Status',
+            'paid_at' => 'Paid at',
+            'student' => 'Student',
+            'academic_year' => 'Academic year',
+            'transaction' => 'Transaction',
+            'description' => 'Description',
+        ],
+        'table' => [
+            'reference' => 'Reference',
+            'title' => 'Title',
+            'student' => 'Student',
+            'type' => 'Type',
+            'amount' => 'Amount',
+            'status' => 'Status',
+            'due_date' => 'Due date',
+            'paid_at' => 'Paid at',
+        ],
+        'filters' => [
+            'type' => 'Type',
+            'status' => 'Status',
+            'academic_year' => 'Academic year',
+            'trashed' => 'Deleted records',
+        ],
+        'types' => [
+            'tuition' => 'Tuition',
+            'registration' => 'Registration',
+            'uniform' => 'Uniform',
+            'misc' => 'Miscellaneous',
+        ],
+        'statuses' => [
+            'pending' => 'Pending',
+            'partial' => 'Partially paid',
+            'paid' => 'Paid',
+            'cancelled' => 'Cancelled',
+        ],
+        'promotion' => [
+            'title' => 'Tuition fee for :grade (:year)',
+            'description' => 'Automatically generated after promotion for :year.',
+        ],
+    ],
+
+    'fee_templates' => [
+        'navigation' => [
+            'label' => 'Grade Fee Templates',
+        ],
+        'model' => [
+            'singular' => 'Fee template',
+            'plural' => 'Fee templates',
+        ],
+        'sections' => [
+            'details' => 'Fee details',
+        ],
+        'fields' => [
+            'title' => 'Title',
+            'grade_level' => 'Grade level',
+            'type' => 'Fee type',
+            'amount' => 'Amount',
+            'currency' => 'Currency',
+            'due_in_days' => 'Due in (days)',
+            'is_active' => 'Active',
+            'description' => 'Description',
+        ],
+        'table' => [
+            'title' => 'Title',
+            'grade_level' => 'Grade',
+            'type' => 'Type',
+            'amount' => 'Amount',
+            'due_in_days' => 'Due',
+            'days' => 'days',
+            'is_active' => 'Active',
+        ],
+        'filters' => [
+            'grade_level' => 'Grade level',
+            'type' => 'Type',
+            'is_active' => 'Status',
+            'trashed' => 'Deleted records',
+        ],
+    ],
+
+    'transaction_types' => [
+        'income' => 'Income',
+        'expense' => 'Expense',
+    ],
+
+    'payment_statuses' => [
+        'pending' => 'Pending',
+        'partial' => 'Partially paid',
+        'paid' => 'Paid',
+        'cancelled' => 'Cancelled',
+    ],
+
+    'attendance' => [
+        'statuses' => [
+            'present' => 'Present',
+            'absent' => 'Absent',
+            'late' => 'Late',
+            'excused' => 'Excused',
+            'sick' => 'Sick',
+        ],
+    ],
+
+    'student_attendances' => [
+        'navigation' => [
+            'label' => 'Student Attendance',
+        ],
+        'model' => [
+            'singular' => 'Student attendance',
+            'plural' => 'Student attendance',
+        ],
+        'sections' => [
+            'details' => 'Attendance details',
+            'notes' => 'Notes',
+        ],
+        'fields' => [
+            'student' => 'Student',
+            'academic_year' => 'Academic year',
+            'classroom' => 'Classroom',
+            'recorded_on' => 'Date',
+            'status' => 'Status',
+            'checked_in_at' => 'Check-in time',
+            'checked_out_at' => 'Check-out time',
+            'notes' => 'Notes',
+        ],
+        'table' => [
+            'recorded_on' => 'Date',
+            'student' => 'Student',
+            'classroom' => 'Classroom',
+            'status' => 'Status',
+            'checked_in_at' => 'In',
+            'checked_out_at' => 'Out',
+        ],
+        'filters' => [
+            'status' => 'Status',
+            'student' => 'Student',
+            'classroom' => 'Classroom',
+            'recorded_period' => 'Date range',
+            'from' => 'From',
+            'until' => 'Until',
+        ],
+        'actions' => [
+            'generate' => 'Generate daily roster',
+            'generate_success' => ':count students prepared for attendance.',
+        ],
+    ],
+
+    'staff_attendances' => [
+        'navigation' => [
+            'label' => 'Staff Attendance',
+        ],
+        'model' => [
+            'singular' => 'Staff attendance',
+            'plural' => 'Staff attendance',
+        ],
+        'sections' => [
+            'details' => 'Attendance details',
+            'notes' => 'Notes',
+        ],
+        'fields' => [
+            'staff' => 'Staff',
+            'recorded_on' => 'Date',
+            'status' => 'Status',
+            'checked_in_at' => 'Check-in time',
+            'checked_out_at' => 'Check-out time',
+            'location' => 'Location',
+            'notes' => 'Notes',
+        ],
+        'table' => [
+            'recorded_on' => 'Date',
+            'staff' => 'Staff',
+            'status' => 'Status',
+            'location' => 'Location',
+            'checked_in_at' => 'In',
+            'checked_out_at' => 'Out',
+        ],
+        'filters' => [
+            'status' => 'Status',
+            'staff' => 'Staff',
+            'recorded_period' => 'Date range',
+            'from' => 'From',
+            'until' => 'Until',
+        ],
+        'actions' => [
+            'generate' => 'Generate daily roster',
+            'generate_success' => ':count staff prepared for attendance.',
+        ],
+    ],
+
     'registration_intakes' => [
         'navigation' => [
             'label' => 'Registration Intake',
@@ -502,6 +750,15 @@ return [
             'target_classroom' => 'Specific classroom (optional)',
             'success_promoted' => 'Student promoted to :grade',
             'success_graduated' => 'Student has graduated.',
+            'promotion_fees_created' => 'Fees created: :fees.',
+            'eligibility_status' => 'Eligibility status',
+            'eligibility_ready' => 'Eligible for promotion (all fees paid).',
+            'eligibility_pending_fees' => 'Pending fees detected. Approval required before promoting.',
+            'eligibility_pending_scores' => 'Awaiting academic eligibility data.',
+            'outstanding_fees' => 'Outstanding fees',
+            'outstanding_fees_message' => ':count outstanding fees totaling :amount. Confirm before promoting.',
+            'override_outstanding_fees' => 'I confirm promotion despite outstanding fees.',
+            'outstanding_fees_confirmation_required' => 'Approval is required to continue with outstanding fees.',
         ],
     ],
 ];

@@ -15,13 +15,13 @@
     - [x] Create `Classroom` model and migration (with School Level) <!-- id: 7 -->
     - [x] Create `ClassroomStaff` (Assignment History) model and migration <!-- id: 26 -->
     - [x] Create `RegistrationIntake` model and migration <!-- id: 49 -->
-    - [ ] Create `StaffAttendance` model and migration <!-- id: 31 -->
+    - [x] Create `StaffAttendance` model and migration <!-- id: 31 -->
     - [ ] Create `SalaryStructure` model and migration <!-- id: 33 -->
     - [ ] Create `Payroll` model and migration <!-- id: 34 -->
-    - [ ] Create `Fee` model and migration (Tuition, etc.) <!-- id: 35 -->
-    - [ ] Create `Transaction` model and migration (Payments) <!-- id: 36 -->
+    - [x] Create `Fee` model and migration (Tuition, etc.) <!-- id: 35 -->
+    - [x] Create `Transaction` model and migration (Payments) <!-- id: 36 -->
     - [ ] Create `Schedule` / `Timetable` model and migration <!-- id: 8 -->
-    - [ ] Create `Attendance` model and migration <!-- id: 9 -->
+    - [x] Create `Attendance` model and migration <!-- id: 9 -->
     - [ ] Create `Grade` / `Mark` model and migration <!-- id: 10 -->
 
 - [ ] **Filament Resources**
@@ -35,14 +35,14 @@
     - [x] Create `ClassroomResource` <!-- id: 15 -->
         - [x] Implement RelationManager for Teacher Assignments (History) <!-- id: 27 -->
     - [x] Create `RegistrationIntakeResource` <!-- id: 50 -->
-    - [ ] Create `StaffAttendanceResource` <!-- id: 32 -->
+    - [x] Create `StaffAttendanceResource` <!-- id: 32 -->
     - [ ] Create `PayrollResource` <!-- id: 37 -->
-    - [ ] Create `FeeResource` <!-- id: 38 -->
-    - [ ] Create `TransactionResource` (Income & Outcome) <!-- id: 39 -->
+    - [x] Create `FeeResource` <!-- id: 38 -->
+    - [x] Create `TransactionResource` (Income & Outcome) <!-- id: 39 -->
     - [ ] Create `FinanceStatsOverview` Widget (Dashboard) <!-- id: 42 -->
     - [ ] Create `ScheduleResource` <!-- id: 16 -->
         - [ ] Implement timetable view <!-- id: 17 -->
-    - [ ] Create `AttendanceResource` <!-- id: 18 -->
+    - [x] Create `AttendanceResource` <!-- id: 18 -->
     - [ ] Create `GradeResource` <!-- id: 19 -->
 
 - [ ] **Advanced Features & Logic**
@@ -57,6 +57,6 @@
         - [ ] `SchoolLevel` (PAUD, TK, SD) <!-- id: 28 -->
         - [ ] `StaffRole` (Teacher, Admin, etc.) <!-- id: 29 -->
         - [x] `AssignmentRole` (Homeroom, Subject Teacher) <!-- id: 30 -->
-        - [ ] `PaymentStatus` (Paid, Pending, Overdue) <!-- id: 40 -->
-        - [ ] `TransactionType` (Income, Expense) <!-- id: 41 -->
+        - [x] `PaymentStatus` (Paid, Pending, Overdue) <!-- id: 40 -->
+        - [x] `TransactionType` (Income, Expense) <!-- id: 41 -->
     - [ ] Review code against Filament best practices <!-- id: 25 -->

@@ -6,12 +6,14 @@ namespace App\Filament\Resources\RegistrationIntakes\Pages;
 
 use App\Enums\RegistrationStatus;
 use App\Enums\StudentStatus;
+use App\Enums\TransactionType;
 use App\Filament\Resources\RegistrationIntakes\RegistrationIntakeResource;
 use App\Models\Classroom;
 use App\Models\ClassroomAssignment;
 use App\Models\Guardian;
 use App\Models\RegistrationIntake;
 use App\Models\Student;
+use App\Models\Transaction;
 use Filament\Actions;
 use Filament\Actions\DeleteAction;
 use Filament\Notifications\Notification;
@@ -37,6 +39,12 @@ class EditRegistrationIntake extends EditRecord
                 ->visible(fn(RegistrationIntake $record): bool => $record->student_id === null && $record->status !== RegistrationStatus::Completed)
                 ->requiresConfirmation()
                 ->action(fn(): mixed => $this->convertIntake()),
+            Actions\Action::make('receipt')
+                ->label(__('Print receipt'))
+                ->icon('heroicon-o-printer')
+                ->url(fn(): ?string => $this->getReceiptUrl())
+                ->openUrlInNewTab()
+                ->visible(fn(): bool => $this->getReceiptUrl() !== null),
             DeleteAction::make(),
         ];
     }
@@ -82,6 +90,8 @@ class EditRegistrationIntake extends EditRecord
                     ]);
                 }
 
+                $this->createTransaction($record);
+
                 $record->update([
                     'student_id' => $student->id,
                     'status' => RegistrationStatus::Completed,
@@ -108,7 +118,7 @@ class EditRegistrationIntake extends EditRecord
             ->success()
             ->send();
 
-        $this->refreshFormData();
+        $this->fillForm();
     }
 
     private function ensureClassroomHasCapacity(Classroom $classroom): void
@@ -166,5 +176,48 @@ class EditRegistrationIntake extends EditRecord
         } while (Student::withTrashed()->where('student_number', $number)->exists());
 
         return $number;
+    }
+
+    private function createTransaction(RegistrationIntake $record): void
+    {
+        if ($record->payment_amount <= 0) {
+            return;
+        }
+
+        $transaction = Transaction::create([
+                    'reference' => Transaction::generateReference(),
+                    'label' => __('Registration fee :form', ['form' => $record->form_number]),
+                    'type' => TransactionType::Income,
+                    'category' => 'registration',
+                    'payment_status' => $record->payment_received_at !== null ? 'paid' : 'pending',
+                    'payment_method' => $record->payment_method,
+                    'amount' => $record->payment_amount,
+                    'currency' => 'IDR',
+                    'due_date' => $record->payment_received_at,
+                    'paid_at' => $record->payment_received_at,
+                    'academic_year_id' => $record->academic_year_id,
+            'counterparty_name' => $record->guardian_name,
+            'recorded_by' => Auth::id(),
+            'notes' => __('Created from registration intake :form', ['form' => $record->form_number]),
+            'metadata' => [
+                'intake_id' => $record->id,
+                'payment_reference' => $record->payment_reference,
+            ],
+        ]);
+
+        $record->update([
+            'payment_reference' => $transaction->reference,
+        ]);
+    }
+
+    private function getReceiptUrl(): ?string
+    {
+        $transaction = Transaction::query()
+            ->whereJsonContains('metadata->intake_id', $this->getRecord()->id)
+            ->orWhere('reference', $this->getRecord()->payment_reference)
+            ->latest('id')
+            ->first();
+
+        return $transaction?->exists ? route('receipts.transactions.show', $transaction) : null;
     }
 }

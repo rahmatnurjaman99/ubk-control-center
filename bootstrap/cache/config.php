@@ -160,8 +160,31 @@
       20 => 'Illuminate\\Translation\\TranslationServiceProvider',
       21 => 'Illuminate\\Validation\\ValidationServiceProvider',
       22 => 'Illuminate\\View\\ViewServiceProvider',
-      23 => 'App\\Providers\\AppServiceProvider',
-      24 => 'App\\Providers\\Filament\\AdminPanelProvider',
+      23 => 'Illuminate\\Auth\\AuthServiceProvider',
+      24 => 'Illuminate\\Broadcasting\\BroadcastServiceProvider',
+      25 => 'Illuminate\\Bus\\BusServiceProvider',
+      26 => 'Illuminate\\Cache\\CacheServiceProvider',
+      27 => 'Illuminate\\Foundation\\Providers\\ConsoleSupportServiceProvider',
+      28 => 'Illuminate\\Cookie\\CookieServiceProvider',
+      29 => 'Illuminate\\Database\\DatabaseServiceProvider',
+      30 => 'Illuminate\\Encryption\\EncryptionServiceProvider',
+      31 => 'Illuminate\\Filesystem\\FilesystemServiceProvider',
+      32 => 'Illuminate\\Foundation\\Providers\\FoundationServiceProvider',
+      33 => 'Illuminate\\Hashing\\HashServiceProvider',
+      34 => 'Illuminate\\Mail\\MailServiceProvider',
+      35 => 'Illuminate\\Notifications\\NotificationServiceProvider',
+      36 => 'Illuminate\\Pagination\\PaginationServiceProvider',
+      37 => 'Illuminate\\Pipeline\\PipelineServiceProvider',
+      38 => 'Illuminate\\Queue\\QueueServiceProvider',
+      39 => 'Illuminate\\Redis\\RedisServiceProvider',
+      40 => 'Illuminate\\Auth\\Passwords\\PasswordResetServiceProvider',
+      41 => 'Illuminate\\Session\\SessionServiceProvider',
+      42 => 'Illuminate\\Translation\\TranslationServiceProvider',
+      43 => 'Illuminate\\Validation\\ValidationServiceProvider',
+      44 => 'Illuminate\\View\\ViewServiceProvider',
+      45 => 'App\\Providers\\AppServiceProvider',
+      46 => 'App\\Providers\\Filament\\AdminPanelProvider',
+      47 => 'App\\Providers\\FinanceServiceProvider',
     ),
     'aliases' => 
     array (
@@ -614,6 +637,29 @@
     'links' => 
     array (
       '/app/ubk-control-center/public/storage' => '/app/ubk-control-center/storage/app/public',
+    ),
+  ),
+  'finance' => 
+  array (
+    'promotion_fees' => 
+    array (
+      'enabled' => true,
+      'type' => 'tuition',
+      'status' => 'pending',
+      'currency' => 'IDR',
+      'due_in_days' => 14,
+      'grade_amounts' => 
+      array (
+        'paud' => 500000,
+        'tk_a' => 550000,
+        'tk_b' => 600000,
+        'sd_1' => 650000,
+        'sd_2' => 700000,
+        'sd_3' => 750000,
+        'sd_4' => 800000,
+        'sd_5' => 850000,
+        'sd_6' => 900000,
+      ),
     ),
   ),
   'logging' => 
