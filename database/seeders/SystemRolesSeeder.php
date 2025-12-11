@@ -14,38 +14,80 @@ class SystemRolesSeeder extends Seeder
 {
     private const FULL_ACCESS = '*';
 
+    /**
+     * @var list<string>
+     */
+    private const READ_PERMISSIONS = ['ViewAny', 'View'];
+
+    /**
+     * @var list<string>
+     */
+    private const MANAGE_PERMISSIONS = ['ViewAny', 'View', 'Create', 'Update', 'Delete'];
+
+    /**
+     * Role privilege map describing which permissions should be synced
+     * for every non-admin system role.
+     *
+     * @var array<string, array<string, list<string>>>
+     */
+    private const ROLE_PRIVILEGES = [
+        SystemRole::Teacher->value => [
+            'AcademicYear' => self::READ_PERMISSIONS,
+            'Classroom' => ['ViewAny', 'View', 'Update'],
+            'Schedule' => self::READ_PERMISSIONS,
+            'Student' => ['ViewAny', 'View', 'Update'],
+            'StudentAttendance' => ['ViewAny', 'View', 'Create', 'Update', 'Delete'],
+            'StaffAttendance' => self::READ_PERMISSIONS,
+            'PromotionApproval' => ['ViewAny', 'View', 'Create'],
+            'Fee' => self::READ_PERMISSIONS,
+            'Transaction' => self::READ_PERMISSIONS,
+        ],
+        SystemRole::Guardian->value => [
+            'AcademicYear' => self::READ_PERMISSIONS,
+            'Classroom' => self::READ_PERMISSIONS,
+            'Schedule' => self::READ_PERMISSIONS,
+            'Student' => self::READ_PERMISSIONS,
+            'StudentAttendance' => self::READ_PERMISSIONS,
+            'PromotionApproval' => self::READ_PERMISSIONS,
+            'Fee' => self::READ_PERMISSIONS,
+            'Transaction' => self::READ_PERMISSIONS,
+        ],
+        SystemRole::PanelUser->value => [
+            'AcademicYear' => self::READ_PERMISSIONS,
+            'Classroom' => self::READ_PERMISSIONS,
+            'Student' => ['ViewAny', 'View', 'Update'],
+            'Guardian' => self::READ_PERMISSIONS,
+            'Schedule' => self::MANAGE_PERMISSIONS,
+            'FeeTemplate' => self::MANAGE_PERMISSIONS,
+            'Fee' => self::MANAGE_PERMISSIONS,
+            'Transaction' => self::MANAGE_PERMISSIONS,
+            'RegistrationIntake' => self::MANAGE_PERMISSIONS,
+            'PromotionApproval' => ['ViewAny', 'View', 'Update'],
+            'StaffAttendance' => self::READ_PERMISSIONS,
+            'StudentAttendance' => self::READ_PERMISSIONS,
+        ],
+        SystemRole::Student->value => [
+            'AcademicYear' => self::READ_PERMISSIONS,
+            'Classroom' => self::READ_PERMISSIONS,
+            'Schedule' => self::READ_PERMISSIONS,
+            'Student' => self::READ_PERMISSIONS,
+            'StudentAttendance' => self::READ_PERMISSIONS,
+            'Fee' => self::READ_PERMISSIONS,
+            'Transaction' => self::READ_PERMISSIONS,
+        ],
+    ];
+
     public function run(): void
     {
         $definitions = [
             SystemRole::Admin->value => [
                 'permissions' => self::FULL_ACCESS,
             ],
-            SystemRole::Teacher->value => [
-                'permissions' => $this->buildPermissions([
-                    'Student' => ['ViewAny', 'View', 'Update'],
-                    'Classroom' => ['ViewAny', 'View', 'Update'],
-                    'Subject' => ['ViewAny', 'View'],
-                    'SubjectCategory' => ['ViewAny', 'View'],
-                    'AcademicYear' => ['ViewAny', 'View'],
-                ]),
-            ],
-            SystemRole::Guardian->value => [
-                'permissions' => $this->buildPermissions([
-                    'Student' => ['ViewAny', 'View'],
-                    'Guardian' => ['ViewAny', 'View'],
-                    'Classroom' => ['ViewAny', 'View'],
-                    'Subject' => ['ViewAny', 'View'],
-                ]),
-            ],
-            SystemRole::Student->value => [
-                'permissions' => $this->buildPermissions([
-                    'Student' => ['ViewAny', 'View'],
-                    'Classroom' => ['ViewAny', 'View'],
-                    'Subject' => ['ViewAny', 'View'],
-                    'AcademicYear' => ['ViewAny', 'View'],
-                ]),
-            ],
         ];
+
+        foreach (self::ROLE_PRIVILEGES as $role => $privileges) {
+            $definitions[$role]['permissions'] = $this->buildPermissions($privileges);
+        }
 
         $guard = config('filament.auth.guard') ?? config('auth.defaults.guard');
 

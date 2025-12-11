@@ -11,6 +11,7 @@ use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
@@ -62,7 +63,7 @@ class StaffAttendanceForm
                     ->seconds(false)
                     ->native(false),
                 Hidden::make('recorded_by')
-                    ->default(fn (): ?int => auth()->id()),
+                    ->default(fn(): ?int => auth()->id()),
             ]);
     }
 
@@ -72,6 +73,7 @@ class StaffAttendanceForm
             ->schema([
                 Textarea::make('notes')
                     ->label(__('filament.staff_attendances.fields.notes'))
+                    ->required(fn(Get $get): bool => $get('status') !== AttendanceStatus::Present->value)
                     ->rows(4)
                     ->columnSpanFull(),
             ]);

@@ -6,6 +6,16 @@
       'EloquentSerialize' => 'AnourValar\\EloquentSerialize\\Facades\\EloquentSerializeFacade',
     ),
   ),
+  'azishapidin/indoregion' => 
+  array (
+    'aliases' => 
+    array (
+    ),
+    'providers' => 
+    array (
+      0 => 'AzisHapidin\\IndoRegion\\IndoRegionServiceProvider',
+    ),
+  ),
   'barryvdh/laravel-debugbar' => 
   array (
     'aliases' => 
@@ -117,6 +127,20 @@
     'providers' => 
     array (
       0 => 'Filament\\Widgets\\WidgetsServiceProvider',
+    ),
+  ),
+  'guava/calendar' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'Guava\\Calendar\\CalendarServiceProvider',
+    ),
+  ),
+  'jhonoryza/laravel-quran' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'Jhonoryza\\LaravelQuran\\QuranServiceProvider',
     ),
   ),
   'kirschbaum-development/eloquent-power-joins' => 

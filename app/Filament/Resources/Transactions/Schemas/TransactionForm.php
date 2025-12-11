@@ -38,7 +38,8 @@ class TransactionForm
                     ->default(fn (): string => TransactionModel::generateReference())
                     ->maxLength(50)
                     ->unique(ignoreRecord: true)
-                    ->required(),
+                    ->required()
+                    ->readOnly(),
                 TextInput::make('label')
                     ->label(__('filament.transactions.fields.label'))
                     ->maxLength(255)

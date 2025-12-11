@@ -1,0 +1,13 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Filament\Resources\SalaryStructures\Pages;
+
+use App\Filament\Resources\SalaryStructures\SalaryStructureResource;
+use Filament\Resources\Pages\CreateRecord;
+
+class CreateSalaryStructure extends CreateRecord
+{
+    protected static string $resource = SalaryStructureResource::class;
+}

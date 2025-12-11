@@ -6,6 +6,7 @@ namespace App\Filament\Resources\Staff\Schemas;
 
 use App\Enums\StaffRole;
 use App\Models\Staff;
+use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Schema;
@@ -31,6 +32,10 @@ class StaffInfolist
     {
         return Section::make(__('filament.staff.sections.profile'))
             ->schema([
+                ImageEntry::make('photo_url')
+                    ->label(__('filament.staff.fields.photo'))
+                    ->circular()
+                    ->columnSpan(1),
                 TextEntry::make('user.name')
                     ->label(__('filament.staff.fields.user'))
                     ->weight('medium'),
@@ -39,6 +44,14 @@ class StaffInfolist
                     ->weight('medium'),
                 TextEntry::make('staff_number')
                     ->label(__('filament.staff.fields.staff_number')),
+                TextEntry::make('gender')
+                    ->label(__('filament.staff.fields.gender'))
+                    ->badge()
+                    ->formatStateUsing(fn (?string $state): ?string => match ($state) {
+                        'male' => __('filament.staff.genders.male'),
+                        'female' => __('filament.staff.genders.female'),
+                        default => null,
+                    }),
                 TextEntry::make('user.roles.name')
                     ->label(__('filament.staff.fields.role'))
                     ->badge()
@@ -51,6 +64,21 @@ class StaffInfolist
                     ->label(__('filament.staff.fields.phone'))
                     ->icon('heroicon-o-phone')
                     ->copyable(),
+                TextEntry::make('address')
+                    ->label(__('filament.staff.fields.address'))
+                    ->columnSpanFull(),
+                TextEntry::make('province.name')
+                    ->label(__('filament.staff.fields.province'))
+                    ->placeholder('—'),
+                TextEntry::make('regency.name')
+                    ->label(__('filament.staff.fields.regency'))
+                    ->placeholder('—'),
+                TextEntry::make('district.name')
+                    ->label(__('filament.staff.fields.district'))
+                    ->placeholder('—'),
+                TextEntry::make('village.name')
+                    ->label(__('filament.staff.fields.village'))
+                    ->placeholder('—'),
             ])
             ->columns(2);
     }

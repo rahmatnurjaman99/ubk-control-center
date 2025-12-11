@@ -86,4 +86,12 @@ class Classroom extends Model
         return $this->belongsToMany(Subject::class)
             ->withTimestamps();
     }
+
+    /**
+     * @return HasMany<Schedule>
+     */
+    public function schedules(): HasMany
+    {
+        return $this->hasMany(Schedule::class);
+    }
 }

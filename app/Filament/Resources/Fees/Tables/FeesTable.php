@@ -13,6 +13,7 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
@@ -48,6 +49,19 @@ class FeesTable
                     ->money('IDR')
                     ->alignRight()
                     ->sortable(),
+                TextColumn::make('paid_amount')
+                    ->label(__('filament.fees.table.paid_amount'))
+                    ->money('IDR')
+                    ->alignRight()
+                    ->sortable()
+                    ->toggleable(),
+                TextColumn::make('outstanding_amount')
+                    ->label(__('filament.fees.table.outstanding'))
+                    ->state(fn ($record): float => (float) $record->outstanding_amount)
+                    ->money('IDR')
+                    ->alignRight()
+                    ->sortable()
+                    ->toggleable(),
                 TextColumn::make('status')
                     ->label(__('filament.fees.table.status'))
                     ->badge()
@@ -69,9 +83,28 @@ class FeesTable
                 SelectFilter::make('type')
                     ->label(__('filament.fees.filters.type'))
                     ->options(FeeType::options()),
+                SelectFilter::make('student_id')
+                    ->label(__('filament.fees.filters.student'))
+                    ->relationship(
+                        name: 'student',
+                        titleAttribute: 'full_name',
+                        modifyQueryUsing: fn ($query) => $query
+                            ->select(['id', 'full_name', 'student_number'])
+                            ->orderBy('full_name')
+                    )
+                    ->searchable()
+                    ->preload()
+                    ->getOptionLabelFromRecordUsing(function ($record): string {
+                        $number = $record->student_number ?? null;
+
+                        return $number === null
+                            ? $record->full_name
+                            : sprintf('%s - %s', $number, $record->full_name);
+                    }),
                 SelectFilter::make('status')
                     ->label(__('filament.fees.filters.status'))
-                    ->options(FeeStatus::options()),
+                    ->options(FeeStatus::options())
+                    ->multiple(),
                 SelectFilter::make('academic_year_id')
                     ->label(__('filament.fees.filters.academic_year'))
                     ->relationship('academicYear', 'name'),

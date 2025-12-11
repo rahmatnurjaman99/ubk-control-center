@@ -77,7 +77,11 @@ class ClassroomAssignmentsRelationManager extends RelationManager
                 TextColumn::make('grade_level')
                     ->label(__('filament.classroom_assignments.table.grade_level'))
                     ->formatStateUsing(
-                        fn (?string $state): ?string => blank($state) ? null : GradeLevel::from($state)->label(),
+                        fn (GradeLevel|string|null $state): ?string => match (true) {
+                            $state instanceof GradeLevel => $state->label(),
+                            blank($state) => null,
+                            default => GradeLevel::from((string) $state)->label(),
+                        },
                     )
                     ->badge()
                     ->sortable(),

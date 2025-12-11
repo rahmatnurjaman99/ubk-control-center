@@ -144,12 +144,22 @@ return [
             'plural' => 'Staff',
         ],
         'fields' => [
+            'photo' => 'Photo',
             'user' => 'User',
             'staff_number' => 'Staff ID',
             'staff_name' => 'Staff name',
+            'gender' => 'Gender',
             'role' => 'Role',
             'joined_on' => 'Joined on',
             'phone' => 'Phone',
+            'address' => 'Address',
+            'province' => 'Province',
+            'regency' => 'City / Regency',
+            'district' => 'District',
+            'village' => 'Village',
+            'bank_name' => 'Bank name',
+            'bank_account_name' => 'Account holder name',
+            'bank_account_number' => 'Account number',
             'emergency_contact_name' => 'Emergency contact name',
             'emergency_contact_phone' => 'Emergency contact phone',
             'education_level' => 'Highest education',
@@ -176,6 +186,7 @@ return [
         ],
         'sections' => [
             'profile' => 'Profile',
+            'payment' => 'Payment details',
             'emergency' => 'Emergency contact',
             'education' => 'Education',
             'metadata' => 'Metadata',
@@ -188,6 +199,10 @@ return [
             'teacher' => 'Teacher',
             'counselor' => 'Counselor',
             'accountant' => 'Accountant',
+        ],
+        'genders' => [
+            'male' => 'Male',
+            'female' => 'Female',
         ],
         'education_levels' => [
             'high_school' => 'High School',
@@ -457,6 +472,8 @@ return [
             'title' => 'Title',
             'type' => 'Fee type',
             'amount' => 'Amount',
+            'paid_amount' => 'Amount paid',
+            'outstanding_amount' => 'Outstanding balance',
             'currency' => 'Currency',
             'due_date' => 'Due date',
             'status' => 'Status',
@@ -472,6 +489,8 @@ return [
             'student' => 'Student',
             'type' => 'Type',
             'amount' => 'Amount',
+            'paid_amount' => 'Paid',
+            'outstanding' => 'Outstanding',
             'status' => 'Status',
             'due_date' => 'Due date',
             'paid_at' => 'Paid at',
@@ -479,6 +498,7 @@ return [
         'filters' => [
             'type' => 'Type',
             'status' => 'Status',
+            'student' => 'Student',
             'academic_year' => 'Academic year',
             'trashed' => 'Deleted records',
         ],
@@ -589,6 +609,8 @@ return [
             'status' => 'Status',
             'checked_in_at' => 'In',
             'checked_out_at' => 'Out',
+            'notes' => 'Reason',
+            'notes_placeholder' => 'Explain absence or lateness',
         ],
         'filters' => [
             'status' => 'Status',
@@ -601,6 +623,69 @@ return [
         'actions' => [
             'generate' => 'Generate daily roster',
             'generate_success' => ':count students prepared for attendance.',
+        ],
+        'validation' => [
+            'reason_required' => 'Please provide a reason when the student is not present.',
+        ],
+    ],
+
+    'schedules' => [
+        'navigation' => [
+            'label' => 'Schedules',
+        ],
+        'model' => [
+            'singular' => 'Schedule',
+            'plural' => 'Schedules',
+        ],
+        'sections' => [
+            'details' => 'Schedule details',
+            'meta' => 'Additional details',
+        ],
+        'fields' => [
+            'title' => 'Title',
+            'subject' => 'Subject',
+            'classroom' => 'Classroom',
+            'teacher' => 'Teacher',
+            'academic_year' => 'Academic year',
+            'starts_at' => 'Starts at',
+            'ends_at' => 'Ends at',
+            'is_all_day' => 'All day',
+            'location' => 'Location',
+            'color' => 'Color',
+            'description' => 'Description',
+            'repeat_weekly_until' => 'Repeat weekly until',
+        ],
+        'table' => [
+            'title' => 'Title',
+            'subject' => 'Subject',
+            'classroom' => 'Classroom',
+            'teacher' => 'Teacher',
+            'starts_at' => 'Starts at',
+            'ends_at' => 'Ends at',
+            'is_all_day' => 'Full day',
+        ],
+        'filters' => [
+            'subject' => 'Subject',
+            'classroom' => 'Classroom',
+            'teacher' => 'Teacher',
+            'date_range' => 'Date range',
+            'from' => 'From',
+            'until' => 'Until',
+        ],
+        'hints' => [
+            'repeat_weekly_until' => 'Leave blank to create a single event.',
+        ],
+        'validation' => [
+            'time_order' => 'Ending time must be after the starting time.',
+            'conflict' => 'Conflicts with :title (:start - :end in :classroom).',
+        ],
+        'defaults' => [
+            'title' => 'Schedule item',
+        ],
+        'notifications' => [
+            'recurring_conflict' => 'Some repeated events could not be created because of conflicts.',
+            'recurring_created' => ':count recurring events created.',
+            'save_failed' => 'Unable to save the schedule. Please review the highlighted fields.',
         ],
     ],
 
@@ -632,6 +717,8 @@ return [
             'location' => 'Location',
             'checked_in_at' => 'In',
             'checked_out_at' => 'Out',
+            'notes' => 'Reason',
+            'notes_placeholder' => 'Explain absence or lateness',
         ],
         'filters' => [
             'status' => 'Status',
@@ -643,6 +730,9 @@ return [
         'actions' => [
             'generate' => 'Generate daily roster',
             'generate_success' => ':count staff prepared for attendance.',
+        ],
+        'validation' => [
+            'reason_required' => 'Please provide a reason when the staff member is not present.',
         ],
     ],
 
@@ -726,16 +816,43 @@ return [
             'plural' => 'Students',
         ],
         'fields' => [
+            'photo' => 'Photo',
             'student_number' => 'Student ID',
             'full_name' => 'Full name',
             'date_of_birth' => 'Date of birth',
             'gender' => 'Gender',
+            'address' => 'Address',
+            'province' => 'Province',
+            'regency' => 'City / Regency',
+            'district' => 'District',
+            'village' => 'Village',
             'status' => 'Status',
             'enrolled_on' => 'Enrolled on',
             'legacy_reference' => 'Legacy reference',
             'guardian' => 'Guardian',
             'academic_year' => 'Academic year',
             'classroom' => 'Classroom',
+            'documents' => 'Documents',
+            'document_name' => 'Document name',
+            'document_type' => 'Document type',
+            'document_file' => 'File',
+            'document_notes' => 'Notes',
+        ],
+        'genders' => [
+            'male' => 'Male',
+            'female' => 'Female',
+        ],
+        'sections' => [
+            'profile' => 'Profile',
+            'guardian' => 'Guardian details',
+            'metadata' => 'Metadata',
+            'registration_documents' => 'Submitted registration documents',
+            'student_documents' => 'Student documents',
+        ],
+        'table' => [
+            'created_at' => 'Created at',
+            'updated_at' => 'Updated at',
+            'deleted_at' => 'Deleted at',
         ],
         'statuses' => [
             'active' => 'Active',
@@ -759,6 +876,178 @@ return [
             'outstanding_fees_message' => ':count outstanding fees totaling :amount. Confirm before promoting.',
             'override_outstanding_fees' => 'I confirm promotion despite outstanding fees.',
             'outstanding_fees_confirmation_required' => 'Approval is required to continue with outstanding fees.',
+            'view_fees' => 'Open fees list',
+            'graduation_notice_label' => 'Graduation notice',
+            'graduation_notice' => 'This student is at the final grade of the level. Approving this action will mark them as graduated.',
+        ],
+        'bulk_promotion' => [
+            'modal_heading' => 'Send requests to Promotion Approvals',
+            'modal_description' => 'Selected students will appear in the Promotion Approvals list so academic staff can review and execute promotions there.',
+            'modal_submit' => 'Send promotion requests',
+            'notification_body' => 'Next, open the Promotion Approvals page to review and approve these requests.',
+        ],
+        'fees' => [
+            'heading' => 'Fee history',
+            'total_amount' => 'Total billed',
+            'total_paid' => 'Total paid',
+            'outstanding_amount' => 'Outstanding balance',
+        ],
+        'import' => [
+            'legacy_action' => 'Import legacy students',
+            'helpers' => [
+                'student_number' => 'Leave blank to auto-generate an ID.',
+                'academic_year' => 'Use the academic year code (e.g. 2024-2025).',
+                'classroom' => 'Use the classroom code.',
+            ],
+            'columns' => [
+                'classroom_assigned_on' => 'Classroom assigned on',
+            ],
+            'notifications' => [
+                'completed' => 'Legacy import finished: :success succeeded, :failed failed (out of :total rows).',
+            ],
+            'assignment_note' => 'Imported from legacy reference :reference',
+        ],
+        'filters' => [
+            'current_academic_year' => 'Only current academic year',
+        ],
+    ],
+    'promotion_approvals' => [
+        'navigation' => [
+            'label' => 'Promotion approvals',
+        ],
+        'model' => [
+            'singular' => 'Promotion approval',
+            'plural' => 'Promotion approvals',
+        ],
+        'heading' => 'Promotion approvals',
+        'bulk_request' => 'Request promotion approval',
+        'fields' => [
+            'target_academic_year' => 'Target academic year',
+            'target_grade_level' => 'Target grade',
+            'target_classroom' => 'Target classroom',
+            'outstanding_amount' => 'Outstanding balance',
+            'status' => 'Status',
+            'requested_by' => 'Requested by',
+            'approved_by' => 'Approved by',
+            'approved_at' => 'Approved at',
+            'notes' => 'Notes',
+            'decision_notes' => 'Decision notes',
+        ],
+        'statuses' => [
+            'pending' => 'Pending',
+            'approved' => 'Approved',
+            'rejected' => 'Rejected',
+        ],
+        'actions' => [
+            'approve' => 'Approve promotion',
+            'reject' => 'Reject',
+        ],
+        'notifications' => [
+            'requested' => ':count promotion approvals requested.',
+            'none_created' => 'No promotion approvals were created.',
+        ],
+        'filters' => [
+            'current_academic_year' => 'Only current academic year',
+        ],
+    ],
+
+    'tahfidz_targets' => [
+        'navigation' => [
+            'label' => 'Tahfidz Targets',
+        ],
+        'model' => [
+            'singular' => 'Tahfidz Target',
+            'plural' => 'Tahfidz Targets',
+        ],
+        'sections' => [
+            'assignment' => 'Assignment',
+            'quran_scope' => 'Qur’an Scope',
+            'timeline' => 'Timeline',
+        ],
+        'fields' => [
+            'student' => 'Student',
+            'classroom' => 'Classroom',
+            'assigned_by' => 'Assigned by',
+            'status' => 'Status',
+            'target_repetitions' => 'Target repetitions',
+            'tag' => 'Tag',
+            'segments' => 'Segments',
+            'surah' => 'Surah',
+            'start_ayah' => 'Start ayah',
+            'end_ayah' => 'End ayah',
+            'start_ayah_preview' => 'Start ayah (Arabic)',
+            'end_ayah_preview' => 'End ayah (Arabic)',
+            'assigned_on' => 'Assigned on',
+            'due_on' => 'Due on',
+            'notes' => 'Notes',
+        ],
+        'table' => [
+            'student' => 'Student',
+            'classroom' => 'Classroom',
+            'surah' => 'Surah',
+            'ayah_range' => 'Ayah range',
+            'range_summary' => 'Range',
+            'segments' => 'Segments',
+            'repetitions' => 'Reps',
+            'progress' => 'Progress',
+            'status' => 'Status',
+            'assigned_on' => 'Assigned on',
+            'due_on' => 'Due on',
+            'logs_count' => '# Evaluations',
+        ],
+        'filters' => [
+            'status' => 'Status',
+            'surah' => 'Surah',
+        ],
+        'actions' => [
+            'assign' => 'Assign target',
+            'add_segment' => 'Add segment',
+        ],
+        'labels' => [
+            'segment' => 'Segment',
+        ],
+        'validation' => [
+            'end_before_start' => 'End ayah must be greater than or equal to start ayah.',
+        ],
+        'placeholders' => [
+            'no_ayah_selected' => 'Select an ayah to preview the Arabic verse.',
+        ],
+    ],
+
+    'tahfidz_logs' => [
+        'navigation' => [
+            'label' => 'Evaluations',
+        ],
+        'sections' => [
+            'review' => 'Evaluation details',
+        ],
+        'fields' => [
+            'recorded_on' => 'Recorded on',
+            'status' => 'Status',
+            'is_revision' => 'Revision session',
+            'surah' => 'Surah',
+            'start_ayah' => 'Start ayah',
+            'end_ayah' => 'End ayah',
+            'memorization_score' => 'Memorization score',
+            'tajwid_score' => 'Tajwid score',
+            'fluency_score' => 'Fluency score',
+            'notes' => 'Notes',
+        ],
+        'table' => [
+            'recorded_on' => 'Recorded on',
+            'surah' => 'Surah',
+            'ayah_range' => 'Ayah range',
+            'status' => 'Status',
+            'memorization_score' => 'Memorization',
+            'tajwid_score' => 'Tajwid',
+            'fluency_score' => 'Fluency',
+            'is_revision' => 'Revision',
+        ],
+        'actions' => [
+            'create' => 'Add evaluation',
+        ],
+        'messages' => [
+            'all_segments_completed' => 'All assigned segments have been fully evaluated.',
         ],
     ],
 ];

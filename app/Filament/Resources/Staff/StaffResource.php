@@ -81,7 +81,7 @@ class StaffResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->with(['user.roles', 'documents'])
+            ->with(['user.roles', 'documents', 'province', 'regency', 'district', 'village'])
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ]);

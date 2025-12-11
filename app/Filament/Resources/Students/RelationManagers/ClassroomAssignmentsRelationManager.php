@@ -15,10 +15,10 @@ use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
-use Filament\Forms\Get;
-use Filament\Forms\Set;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -43,6 +43,7 @@ class ClassroomAssignmentsRelationManager extends RelationManager
                     ->searchable()
                     ->required()
                     ->live()
+                    ->partiallyRenderComponentsAfterStateUpdated(['grade_level'])
                     ->afterStateUpdated(
                         function (Set $set, ?int $state): void {
                             if ($state === null) {
@@ -90,13 +91,21 @@ class ClassroomAssignmentsRelationManager extends RelationManager
                 TextColumn::make('grade_level')
                     ->label(__('filament.classroom_assignments.table.grade_level'))
                     ->formatStateUsing(
-                        fn (?string $state): ?string => blank($state) ? null : GradeLevel::from($state)->label(),
+                        fn (GradeLevel|string|null $state): ?string => match (true) {
+                            $state instanceof GradeLevel => $state->label(),
+                            blank($state) => null,
+                            default => GradeLevel::from((string) $state)->label(),
+                        },
                     )
                     ->badge(),
                 TextColumn::make('classroom.school_level')
                     ->label(__('filament.classroom_assignments.table.school_level'))
                     ->formatStateUsing(
-                        fn(?string $state): ?string => $state !== null ? SchoolLevel::from($state)->label() : null,
+                        fn (SchoolLevel|string|null $state): ?string => match (true) {
+                            $state instanceof SchoolLevel => $state->label(),
+                            blank($state) => null,
+                            default => SchoolLevel::from((string) $state)->label(),
+                        },
                     )
                     ->badge(),
                 TextColumn::make('assigned_on')

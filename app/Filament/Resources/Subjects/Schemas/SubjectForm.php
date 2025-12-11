@@ -9,8 +9,8 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Forms\Set;
 use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Utilities\Set;
 use Illuminate\Support\Str;
 
 class SubjectForm
@@ -61,6 +61,7 @@ class SubjectForm
                 TextInput::make('name')
                     ->label(__('filament.subjects.fields.category_name'))
                     ->live()
+                    ->partiallyRenderComponentsAfterStateUpdated(['slug'])
                     ->afterStateUpdated(
                         function (Set $set, ?string $state): void {
                             $set('slug', blank($state) ? null : Str::slug($state));

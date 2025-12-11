@@ -4,8 +4,9 @@ to run composer to install package or run php artisan or run npm do this example
 
 "docker compose exec -u 1000:1000 web bash" and go to folder /app/ubk-control-center and run composer, php artisan or npm run inside that folder.
 
-use latest filament (v4),  
+use latest filament (v4) — always stick to the Filament 4 namespaces (e.g. `Filament\Actions\CreateAction` for table header actions),  
 index filament docs https://filamentphp.com/docs/4.x/introduction/overview for your reference
+Filament 4 snippets: see `Filament4_docs.md` (partial but growing reference of links/snippets we rely on).
 
 if you create a resource or model please just run from command, dont to create the file manually because it has limit token issues
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\Users\Tables;
 
+use App\Enums\SystemRole;
 use App\Enums\UserStatus;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -70,7 +71,7 @@ class UsersTable
         return TextColumn::make('roles.name')
             ->label(__('filament.users.fields.roles'))
             ->badge()
-            ->color('primary')
+            ->color(fn (?string $state): ?string => self::resolveRoleBadgeColor($state))
             ->separator(', ')
             ->wrap();
     }
@@ -143,5 +144,18 @@ class UsersTable
     private static function getDeleteBulkAction(): DeleteBulkAction
     {
         return DeleteBulkAction::make();
+    }
+
+    private static function resolveRoleBadgeColor(?string $role): ?string
+    {
+        return match ($role) {
+            SystemRole::SuperAdmin->value => 'danger',
+            SystemRole::Admin->value => 'warning',
+            SystemRole::Teacher->value => 'success',
+            SystemRole::Guardian->value => 'info',
+            SystemRole::Student->value => 'gray',
+            SystemRole::PanelUser->value => 'primary',
+            default => 'secondary',
+        };
     }
 }

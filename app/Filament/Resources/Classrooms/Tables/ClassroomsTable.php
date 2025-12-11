@@ -76,7 +76,13 @@ class ClassroomsTable
     {
         return TextColumn::make('school_level')
             ->label(__('filament.classrooms.table.school_level'))
-            ->formatStateUsing(fn (?string $state): ?string => $state !== null ? SchoolLevel::from($state)->label() : null)
+            ->formatStateUsing(
+                fn (SchoolLevel|string|null $state): ?string => match (true) {
+                    $state instanceof SchoolLevel => $state->label(),
+                    blank($state) => null,
+                    default => SchoolLevel::from((string) $state)->label(),
+                },
+            )
             ->badge()
             ->colors([
                 'primary',
@@ -89,7 +95,11 @@ class ClassroomsTable
         return TextColumn::make('grade_level')
             ->label(__('filament.classrooms.table.grade_level'))
             ->formatStateUsing(
-                fn (?string $state): ?string => blank($state) ? null : GradeLevel::from($state)->label(),
+                fn (GradeLevel|string|null $state): ?string => match (true) {
+                    $state instanceof GradeLevel => $state->label(),
+                    blank($state) => null,
+                    default => GradeLevel::from((string) $state)->label(),
+                },
             )
             ->badge()
             ->sortable();

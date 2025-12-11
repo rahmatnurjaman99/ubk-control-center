@@ -18,11 +18,14 @@
     - [x] Create `StaffAttendance` model and migration <!-- id: 31 -->
     - [ ] Create `SalaryStructure` model and migration <!-- id: 33 -->
     - [ ] Create `Payroll` model and migration <!-- id: 34 -->
+    - [ ] Create `PayrollItem` model and migration (per-staff breakdown) <!-- id: 51 -->
     - [x] Create `Fee` model and migration (Tuition, etc.) <!-- id: 35 -->
     - [x] Create `Transaction` model and migration (Payments) <!-- id: 36 -->
-    - [ ] Create `Schedule` / `Timetable` model and migration <!-- id: 8 -->
+    - [x] Create `Schedule` / `Timetable` model and migration <!-- id: 8 -->
     - [x] Create `Attendance` model and migration <!-- id: 9 -->
     - [ ] Create `Grade` / `Mark` model and migration <!-- id: 10 -->
+    - [x] Create `TahfidzTarget` model and migration <!-- id: 56 -->
+    - [x] Create `TahfidzLog` model and migration <!-- id: 57 -->
 
 - [ ] **Filament Resources**
     - [x] Create `AcademicYearResource` <!-- id: 11 -->
@@ -37,19 +40,28 @@
     - [x] Create `RegistrationIntakeResource` <!-- id: 50 -->
     - [x] Create `StaffAttendanceResource` <!-- id: 32 -->
     - [ ] Create `PayrollResource` <!-- id: 37 -->
+    - [ ] Create `SalaryStructureResource` <!-- id: 52 -->
+    - [ ] Create `PayrollItem` RelationManager (within Payroll) <!-- id: 53 -->
     - [x] Create `FeeResource` <!-- id: 38 -->
     - [x] Create `TransactionResource` (Income & Outcome) <!-- id: 39 -->
     - [ ] Create `FinanceStatsOverview` Widget (Dashboard) <!-- id: 42 -->
-    - [ ] Create `ScheduleResource` <!-- id: 16 -->
-        - [ ] Implement timetable view <!-- id: 17 -->
+    - [x] Create `ScheduleResource` <!-- id: 16 -->
+        - [x] Implement timetable view <!-- id: 17 -->
     - [x] Create `AttendanceResource` <!-- id: 18 -->
     - [ ] Create `GradeResource` <!-- id: 19 -->
+    - [x] Create `TahfidzTargetResource` (teacher + guardian visibility) <!-- id: 58 -->
+    - [x] Create Tahfidz progress RelationManagers/Infolists for students <!-- id: 59 -->
 
 - [ ] **Advanced Features & Logic**
     - [x] Implement User Roles & Permissions (Admin, Teacher, Student, Parent) <!-- id: 20 -->
     - [ ] Implement "Parent View" (Scoped resources for Guardians) <!-- id: 45 -->
     - [x] Implement "Promote Student" logic <!-- id: 21 -->
     - [ ] Implement "Generate Timetable" logic (if automated) <!-- id: 22 -->
+    - [ ] Implement salary calculation & payroll run logic <!-- id: 54 -->
+    - [ ] Integrate payroll payouts with Transactions module <!-- id: 55 -->
+    - [ ] Sync & manage Quran data via `laravel-quran` package <!-- id: 60 -->
+    - [ ] Implement Tahfidz progress tracking workflows (targets, logs, analytics) <!-- id: 61 -->
+    - [ ] Expose guardian/teacher tahfidz dashboards & notifications <!-- id: 62 -->
 
 - [ ] **Code Quality & Refactoring**
     - [ ] Ensure `strict_types=1` in all files <!-- id: 23 -->

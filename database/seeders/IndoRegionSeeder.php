@@ -1,0 +1,23 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+
+class IndoRegionSeeder extends Seeder
+{
+    public function run(): void
+    {
+        DB::statement('TRUNCATE TABLE villages, districts, regencies, provinces RESTART IDENTITY CASCADE');
+
+        $this->call([
+            IndoRegionProvinceSeeder::class,
+            IndoRegionRegencySeeder::class,
+            IndoRegionDistrictSeeder::class,
+            IndoRegionVillageSeeder::class,
+        ]);
+    }
+}

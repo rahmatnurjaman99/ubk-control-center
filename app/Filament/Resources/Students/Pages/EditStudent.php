@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\Students\Pages;
 
+use App\Enums\FeeStatus;
 use App\Enums\GradeLevel;
+use App\Filament\Resources\Fees\FeeResource;
 use App\Filament\Resources\Students\StudentResource;
 use App\Models\AcademicYear;
 use App\Models\Classroom;
@@ -54,20 +56,23 @@ class EditStudent extends EditRecord
                         ->all())
                     ->searchable()
                     ->preload()
+                    ->default(fn(): ?int => AcademicYear::query()->where('is_current', true)->value('id'))
                     ->required(),
                 Select::make('grade_level')
                     ->label(__('filament.students.actions.target_grade_level'))
                     ->options(GradeLevel::options())
                     ->searchable()
                     ->nullable()
-                    ->default(fn() => $this->record->next_grade_level?->value)
+                    ->default(fn(): ?string => $this->record->next_grade_level?->value)
+                    ->disabled(fn(): bool => $this->record->determineCurrentGradeLevel() !== null)
                     ->required(fn(): bool => $this->record->determineCurrentGradeLevel() === null),
                 Select::make('classroom_id')
                     ->label(__('filament.students.actions.target_classroom'))
                     ->options(function (Get $get): array {
                         $academicYearId = $get('academic_year_id');
+                        $gradeLevel = $get('grade_level');
 
-                        if (blank($academicYearId)) {
+                        if (blank($academicYearId) || blank($gradeLevel)) {
                             return [];
                         }
 
@@ -75,15 +80,14 @@ class EditStudent extends EditRecord
 
                         $query->where('academic_year_id', $academicYearId);
 
-                        if ($gradeLevel = $get('grade_level')) {
-                            $query->where('grade_level', $gradeLevel);
-                        }
+                        $query->where('grade_level', $gradeLevel);
 
                         return $query->pluck('name', 'id')->all();
                     })
                     ->searchable()
                     ->preload()
-                    ->hidden(fn(Get $get): bool => blank($get('academic_year_id')))
+                    ->hidden(fn(Get $get): bool => blank($get('academic_year_id')) || blank($get('grade_level')))
+                    ->disabled(fn(Get $get): bool => blank($get('grade_level')))
                     ->columnSpanFull(),
                 TextEntry::make('eligibility_status')
                     ->label(__('filament.students.actions.eligibility_status'))
@@ -92,11 +96,23 @@ class EditStudent extends EditRecord
                 TextEntry::make('outstanding_fees')
                     ->label(__('filament.students.actions.outstanding_fees'))
                     ->state(fn(): string => $this->formatOutstandingFeesMessage())
+                    ->suffixActions([
+                        Action::make('viewFees')
+                            ->label(__('filament.students.actions.view_fees'))
+                            ->icon(Heroicon::OutlinedBanknotes)
+                            ->url(fn(): string => $this->getFeesUrl())
+                            ->openUrlInNewTab(),
+                    ])
                     ->columnSpanFull()
                     ->hidden(fn(): bool => ! $this->hasOutstandingFees()),
                 Checkbox::make('override_outstanding_fees')
                     ->label(__('filament.students.actions.override_outstanding_fees'))
                     ->hidden(fn(): bool => ! $this->hasOutstandingFees()),
+                TextEntry::make('graduation_notice')
+                    ->label(__('filament.students.actions.graduation_notice_label'))
+                    ->state(fn(): string => __('filament.students.actions.graduation_notice'))
+                    ->visible(fn(): bool => $this->record->determineCurrentGradeLevel()?->isTerminal() ?? false)
+                    ->columnSpanFull(),
             ])
             ->action(function (array $data, PromoteStudentAction $promoter): void {
                 if ($this->hasOutstandingFees() && empty($data['override_outstanding_fees'])) {
@@ -111,7 +127,7 @@ class EditStudent extends EditRecord
                 $classroom = isset($data['classroom_id']) ? Classroom::query()->findOrFail($data['classroom_id']) : null;
                 $gradeLevel = isset($data['grade_level']) && $data['grade_level'] !== null
                     ? GradeLevel::from($data['grade_level'])
-                    : null;
+                    : $student->determineCurrentGradeLevel()?->next();
 
                 $result = $promoter->execute(
                     student: $student,
@@ -173,7 +189,7 @@ class EditStudent extends EditRecord
     private function formatOutstandingFeesMessage(): string
     {
         $fees = $this->getOutstandingFees();
-        $total = $fees->sum('amount');
+        $total = $fees->sum(fn (Fee $fee): float => $fee->outstanding_amount);
 
         return __('filament.students.actions.outstanding_fees_message', [
             'count' => $fees->count(),
@@ -199,5 +215,22 @@ class EditStudent extends EditRecord
     private function formatCurrency(float $amount): string
     {
         return 'IDR ' . number_format($amount, 0);
+    }
+
+    private function getFeesUrl(): string
+    {
+        return FeeResource::getUrl('index', parameters: [
+            'filters' => [
+                'student_id' => [
+                    'value' => $this->record->getKey(),
+                ],
+                'status' => [
+                    'values' => [
+                        FeeStatus::Pending->value,
+                        FeeStatus::Partial->value,
+                    ],
+                ],
+            ],
+        ]);
     }
 }

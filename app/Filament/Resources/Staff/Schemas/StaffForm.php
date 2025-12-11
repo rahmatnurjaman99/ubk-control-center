@@ -4,15 +4,22 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\Staff\Schemas;
 
-use App\Enums\StaffRole;
 use App\Enums\EducationLevel;
+use App\Enums\StaffRole;
+use App\Models\District;
+use App\Models\Province;
+use App\Models\Regency;
+use App\Models\Village;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Schema;
 use Illuminate\Support\Str;
 use Spatie\Permission\Models\Role;
 
@@ -23,6 +30,7 @@ class StaffForm
         return $schema
             ->components([
                 self::getPrimarySection(),
+                self::getPaymentSection(),
                 self::getEmergencySection(),
                 self::getEducationSection(),
                 self::getDocumentsSection(),
@@ -36,11 +44,29 @@ class StaffForm
             ->columns(2)
             ->schema([
                 self::getUserComponent(),
+                self::getPhotoComponent(),
                 self::getStaffNameComponent(),
+                self::getGenderComponent(),
                 self::getStaffNumberComponent(),
                 self::getRoleComponent(),
                 self::getJoinedOnComponent(),
                 self::getPhoneComponent(),
+                self::getAddressComponent(),
+                self::getProvinceComponent(),
+                self::getRegencyComponent(),
+                self::getDistrictComponent(),
+                self::getVillageComponent(),
+            ]);
+    }
+
+    private static function getPaymentSection(): Section
+    {
+        return Section::make(__('filament.staff.sections.payment'))
+            ->columns(2)
+            ->schema([
+                self::getBankNameComponent(),
+                self::getBankAccountNameComponent(),
+                self::getBankAccountNumberComponent(),
             ]);
     }
 
@@ -102,6 +128,61 @@ class StaffForm
             ->required();
     }
 
+    private static function getGenderComponent(): Select
+    {
+        return Select::make('gender')
+            ->label(__('filament.staff.fields.gender'))
+            ->options(self::getGenderOptions())
+            ->native(false)
+            ->nullable();
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private static function getGenderOptions(): array
+    {
+        return [
+            'male' => __('filament.staff.genders.male'),
+            'female' => __('filament.staff.genders.female'),
+        ];
+    }
+
+    private static function getPhotoComponent(): FileUpload
+    {
+        return FileUpload::make('photo_path')
+            ->label(__('filament.staff.fields.photo'))
+            ->image()
+            ->avatar()
+            ->imageEditor()
+            ->directory('staff-photos')
+            ->disk('public')
+            ->visibility('public')
+            ->maxSize(5_000);
+    }
+
+    private static function getBankNameComponent(): TextInput
+    {
+        return TextInput::make('bank_name')
+            ->label(__('filament.staff.fields.bank_name'))
+            ->maxLength(100);
+    }
+
+    private static function getBankAccountNameComponent(): TextInput
+    {
+        return TextInput::make('bank_account_name')
+            ->label(__('filament.staff.fields.bank_account_name'))
+            ->maxLength(255);
+    }
+
+    private static function getBankAccountNumberComponent(): TextInput
+    {
+        return TextInput::make('bank_account_number')
+            ->label(__('filament.staff.fields.bank_account_number'))
+            ->maxLength(50)
+            ->unique(ignoreRecord: true);
+    }
+
     private static function getRoleComponent(): Select
     {
         return Select::make('role')
@@ -128,6 +209,108 @@ class StaffForm
             ->label(__('filament.staff.fields.phone'))
             ->tel()
             ->maxLength(30);
+    }
+
+    private static function getAddressComponent(): Textarea
+    {
+        return Textarea::make('address')
+            ->label(__('filament.staff.fields.address'))
+            ->rows(3)
+            ->columnSpanFull();
+    }
+
+    private static function getProvinceComponent(): Select
+    {
+        return Select::make('province_id')
+            ->label(__('filament.staff.fields.province'))
+            ->options(fn (): array => Province::query()
+                ->orderBy('name')
+                ->pluck('name', 'id')
+                ->all())
+            ->searchable()
+            ->native(false)
+            ->live()
+            ->partiallyRenderComponentsAfterStateUpdated(['regency_id', 'district_id', 'village_id'])
+            ->afterStateUpdated(function (Set $set): void {
+                $set('regency_id', null);
+                $set('district_id', null);
+                $set('village_id', null);
+            });
+    }
+
+    private static function getRegencyComponent(): Select
+    {
+        return Select::make('regency_id')
+            ->label(__('filament.staff.fields.regency'))
+            ->options(function (Get $get): array {
+                $provinceId = $get('province_id');
+
+                if (blank($provinceId)) {
+                    return [];
+                }
+
+                return Regency::query()
+                    ->where('province_id', $provinceId)
+                    ->orderBy('name')
+                    ->pluck('name', 'id')
+                    ->all();
+            })
+            ->disabled(fn (Get $get): bool => blank($get('province_id')))
+            ->searchable()
+            ->native(false)
+            ->live()
+            ->partiallyRenderComponentsAfterStateUpdated(['district_id', 'village_id'])
+            ->afterStateUpdated(function (Set $set): void {
+                $set('district_id', null);
+                $set('village_id', null);
+            });
+    }
+
+    private static function getDistrictComponent(): Select
+    {
+        return Select::make('district_id')
+            ->label(__('filament.staff.fields.district'))
+            ->options(function (Get $get): array {
+                $regencyId = $get('regency_id');
+
+                if (blank($regencyId)) {
+                    return [];
+                }
+
+                return District::query()
+                    ->where('regency_id', $regencyId)
+                    ->orderBy('name')
+                    ->pluck('name', 'id')
+                    ->all();
+            })
+            ->disabled(fn (Get $get): bool => blank($get('regency_id')))
+            ->searchable()
+            ->native(false)
+            ->live()
+            ->partiallyRenderComponentsAfterStateUpdated(['village_id'])
+            ->afterStateUpdated(fn (Set $set) => $set('village_id', null));
+    }
+
+    private static function getVillageComponent(): Select
+    {
+        return Select::make('village_id')
+            ->label(__('filament.staff.fields.village'))
+            ->options(function (Get $get): array {
+                $districtId = $get('district_id');
+
+                if (blank($districtId)) {
+                    return [];
+                }
+
+                return Village::query()
+                    ->where('district_id', $districtId)
+                    ->orderBy('name')
+                    ->pluck('name', 'id')
+                    ->all();
+            })
+            ->disabled(fn (Get $get): bool => blank($get('district_id')))
+            ->searchable()
+            ->native(false);
     }
 
     private static function getEmergencyContactNameComponent(): TextInput

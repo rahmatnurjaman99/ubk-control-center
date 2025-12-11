@@ -14,6 +14,7 @@ use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
@@ -29,19 +30,24 @@ class StaffTable
     {
         return $table
             ->columns([
+                self::getPhotoColumn(),
                 self::getNameColumn(),
                 self::getStaffNumberColumn(),
                 self::getStaffNameColumn(),
+                self::getGenderColumn(),
                 self::getRoleColumn(),
                 self::getEducationLevelColumn(),
                 self::getJoinedOnColumn(),
                 self::getPhoneColumn(),
+                self::getAddressColumn(),
+                self::getRegionColumn(),
                 self::getEmergencyContactColumn(),
                 self::getCreatedAtColumn(),
             ])
             ->defaultSort('joined_on', 'desc')
             ->filters([
                 self::getRoleFilter(),
+                self::getProvinceFilter(),
                 self::getJoinedOnFilter(),
                 self::getTrashedFilter(),
             ])
@@ -53,6 +59,13 @@ class StaffTable
             ->toolbarActions([
                 self::getBulkActionGroup(),
             ]);
+    }
+
+    private static function getPhotoColumn(): ImageColumn
+    {
+        return ImageColumn::make('photo_url')
+            ->label(__('filament.staff.fields.photo'))
+            ->circular();
     }
 
     private static function getNameColumn(): TextColumn
@@ -79,6 +92,19 @@ class StaffTable
             ->sortable();
     }
 
+    private static function getGenderColumn(): TextColumn
+    {
+        return TextColumn::make('gender')
+            ->label(__('filament.staff.fields.gender'))
+            ->badge()
+            ->formatStateUsing(fn (?string $state): ?string => match ($state) {
+                'male' => __('filament.staff.genders.male'),
+                'female' => __('filament.staff.genders.female'),
+                default => null,
+            })
+            ->toggleable(isToggledHiddenByDefault: true);
+    }
+
     private static function getRoleColumn(): TextColumn
     {
         return TextColumn::make('user.roles.name')
@@ -103,6 +129,21 @@ class StaffTable
             ->label(__('filament.staff.fields.phone'))
             ->wrap()
             ->copyable();
+    }
+
+    private static function getAddressColumn(): TextColumn
+    {
+        return TextColumn::make('address')
+            ->label(__('filament.staff.fields.address'))
+            ->wrap()
+            ->toggleable(isToggledHiddenByDefault: true);
+    }
+
+    private static function getRegionColumn(): TextColumn
+    {
+        return TextColumn::make('regency.name')
+            ->label(__('filament.staff.fields.regency'))
+            ->toggleable(isToggledHiddenByDefault: true);
     }
 
     private static function getEducationLevelColumn(): TextColumn
@@ -133,6 +174,15 @@ class StaffTable
         return SelectFilter::make('role')
             ->label(__('filament.staff.filters.role'))
             ->options(fn (): array => self::getRoleOptions())
+            ->native(false);
+    }
+
+    private static function getProvinceFilter(): SelectFilter
+    {
+        return SelectFilter::make('province_id')
+            ->label(__('filament.staff.fields.province'))
+            ->relationship('province', 'name')
+            ->searchable()
             ->native(false);
     }
 

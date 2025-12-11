@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             SystemRolesSeeder::class,
             StaffRoleSeeder::class,
+            DefaultDataSeeder::class,
         ]);
 
         $superAdminRole = Utils::createRole(SystemRole::SuperAdmin->value);

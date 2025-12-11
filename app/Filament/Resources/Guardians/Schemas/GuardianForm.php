@@ -45,7 +45,8 @@ class GuardianForm
             ->label(__('filament.guardians.fields.guardian_number'))
             ->required()
             ->unique(ignoreRecord: true)
-            ->maxLength(50);
+            ->maxLength(50)
+            ->disabled();
     }
 
     private static function getFullNameComponent(): TextInput
@@ -99,6 +100,7 @@ class GuardianForm
     {
         return TextInput::make('legacy_reference')
             ->label(__('filament.guardians.fields.legacy_reference'))
-            ->maxLength(255);
+            ->maxLength(255)
+            ->disabled();
     }
 }

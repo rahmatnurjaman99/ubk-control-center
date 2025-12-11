@@ -53,6 +53,7 @@ class ClassroomForm
                 return SchoolLevel::from($schoolLevel)->gradeOptions();
             })
             ->live()
+            ->partiallyRenderAfterStateUpdated()
             ->required()
             ->searchable()
             ->preload();

@@ -6,11 +6,13 @@ namespace App\Models;
 
 use App\Enums\EducationLevel;
 use App\Enums\StaffRole;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Storage;
 
 class Staff extends Model
 {
@@ -24,9 +26,19 @@ class Staff extends Model
         'user_id',
         'staff_number',
         'staff_name',
+        'gender',
+        'photo_path',
         'role',
         'joined_on',
         'phone',
+        'address',
+        'province_id',
+        'regency_id',
+        'district_id',
+        'village_id',
+        'bank_name',
+        'bank_account_name',
+        'bank_account_number',
         'education_level',
         'education_institution',
         'graduated_year',
@@ -74,5 +86,71 @@ class Staff extends Model
     public function attendances(): HasMany
     {
         return $this->hasMany(StaffAttendance::class);
+    }
+
+    /**
+     * @return HasMany<Schedule>
+     */
+    public function schedules(): HasMany
+    {
+        return $this->hasMany(Schedule::class, 'staff_id');
+    }
+
+    /**
+     * @return HasMany<SalaryStructure>
+     */
+    public function salaryStructures(): HasMany
+    {
+        return $this->hasMany(SalaryStructure::class);
+    }
+
+    /**
+     * @return HasMany<PayrollItem>
+     */
+    public function payrollItems(): HasMany
+    {
+        return $this->hasMany(PayrollItem::class);
+    }
+
+    public function province(): BelongsTo
+    {
+        return $this->belongsTo(Province::class);
+    }
+
+    public function regency(): BelongsTo
+    {
+        return $this->belongsTo(Regency::class);
+    }
+
+    public function district(): BelongsTo
+    {
+        return $this->belongsTo(District::class);
+    }
+
+    public function village(): BelongsTo
+    {
+        return $this->belongsTo(Village::class);
+    }
+
+    protected function photoUrl(): Attribute
+    {
+        return Attribute::make(
+            get: fn (): string => filled($this->photo_path)
+                ? Storage::disk('public')->url($this->photo_path)
+                : $this->getDefaultPhotoUrl(),
+        );
+    }
+
+    private function getDefaultPhotoUrl(): string
+    {
+        $name = urlencode($this->staff_name ?? 'Staff');
+
+        $background = match ($this->gender) {
+            'female' => 'F472B6',
+            'male' => '2563EB',
+            default => '0D9488',
+        };
+
+        return "https://ui-avatars.com/api/?name={$name}&background={$background}&color=FFFFFF&size=256";
     }
 }

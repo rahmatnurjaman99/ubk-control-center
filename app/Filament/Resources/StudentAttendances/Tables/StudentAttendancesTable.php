@@ -14,6 +14,7 @@ use Filament\Actions\RestoreBulkAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\TextInputColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -52,6 +53,11 @@ class StudentAttendancesTable
                     ->label(__('filament.student_attendances.table.checked_out_at'))
                     ->dateTime('H:i')
                     ->placeholder('-'),
+                TextInputColumn::make('notes')
+                    ->label(__('filament.student_attendances.table.notes'))
+                    ->placeholder(__('filament.student_attendances.table.notes_placeholder'))
+                    ->rules(['nullable', 'string', 'max:1000'])
+                    ->extraInputAttributes(['maxlength' => 1000]),
             ])
             ->filters([
                 SelectFilter::make('status')

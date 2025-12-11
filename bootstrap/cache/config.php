@@ -502,7 +502,7 @@
     array (
       'enabled' => true,
       'name' => 'super_admin',
-      'define_via_gate' => false,
+      'define_via_gate' => true,
       'intercept_gate' => 'before',
     ),
     'panel_user' => 
@@ -956,6 +956,15 @@
       'database' => 'pgsql',
       'table' => 'failed_jobs',
     ),
+  ),
+  'quran' => 
+  array (
+    'source' => 'kemenag',
+    'base_uri' => 'https://web-api.qurankemenag.net/',
+    'token' => NULL,
+    'username' => NULL,
+    'audio_base_uri' => 'https://media.qurankemenag.net/audio/Abu_Bakr_Ash-Shaatree_aac64/',
+    'timeout' => 10,
   ),
   'services' => 
   array (

@@ -33,6 +33,7 @@ class Fee extends Model
         'status',
         'paid_at',
         'description',
+        'paid_amount',
         'metadata',
     ];
 
@@ -45,6 +46,7 @@ class Fee extends Model
             'type' => FeeType::class,
             'status' => FeeStatus::class,
             'amount' => 'decimal:2',
+            'paid_amount' => 'decimal:2',
             'due_date' => 'date',
             'paid_at' => 'datetime',
             'metadata' => 'array',
@@ -56,6 +58,38 @@ class Fee extends Model
         static::creating(function (self $fee): void {
             if (blank($fee->reference)) {
                 $fee->reference = self::generateReference();
+            }
+
+            if ($fee->paid_amount === null) {
+                $fee->paid_amount = 0;
+            }
+        });
+
+        static::saving(function (self $fee): void {
+            $fee->paid_amount = max(0, min((float) $fee->amount, (float) ($fee->paid_amount ?? 0)));
+
+            if ($fee->status === FeeStatus::Cancelled) {
+                return;
+            }
+
+            if ($fee->paid_amount >= (float) $fee->amount) {
+                $fee->status = FeeStatus::Paid;
+
+                if ($fee->paid_at === null) {
+                    $fee->paid_at = now();
+                }
+
+                return;
+            }
+
+            if ($fee->paid_amount > 0) {
+                $fee->status = FeeStatus::Partial;
+
+                return;
+            }
+
+            if ($fee->status === FeeStatus::Partial) {
+                $fee->status = FeeStatus::Pending;
             }
         });
     }
@@ -82,5 +116,13 @@ class Fee extends Model
     public function transaction(): BelongsTo
     {
         return $this->belongsTo(Transaction::class);
+    }
+
+    public function getOutstandingAmountAttribute(): float
+    {
+        $amount = (float) $this->amount;
+        $paid = (float) ($this->paid_amount ?? 0);
+
+        return max($amount - $paid, 0);
     }
 }

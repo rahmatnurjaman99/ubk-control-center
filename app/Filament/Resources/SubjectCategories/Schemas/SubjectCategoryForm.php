@@ -22,6 +22,7 @@ class SubjectCategoryForm
                     ->required()
                     ->maxLength(100)
                     ->live()
+                    ->partiallyRenderComponentsAfterStateUpdated(['slug'])
                     ->afterStateUpdated(
                         function (Set $set, ?string $state): void {
                             $set('slug', blank($state) ? null : Str::slug($state));

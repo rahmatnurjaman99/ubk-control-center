@@ -13,9 +13,9 @@ use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
-use Filament\Forms\Get;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
@@ -48,6 +48,7 @@ class ClassroomStaffRelationManager extends RelationManager
                     ->native(false)
                     ->default(AssignmentRole::Homeroom->value)
                     ->live()
+                    ->partiallyRenderComponentsAfterStateUpdated(['subject_id'])
                     ->required(),
                 Select::make('subject_id')
                     ->label(__('filament.classroom_staff.fields.subject'))
@@ -85,11 +86,19 @@ class ClassroomStaffRelationManager extends RelationManager
                 TextColumn::make('assignment_role')
                     ->label(__('filament.classroom_staff.table.role'))
                     ->formatStateUsing(
-                        fn (?string $state): ?string => blank($state) ? null : AssignmentRole::from($state)->getLabel(),
+                        fn (AssignmentRole|string|null $state): ?string => match (true) {
+                            $state instanceof AssignmentRole => $state->getLabel(),
+                            blank($state) => null,
+                            default => AssignmentRole::from((string) $state)->getLabel(),
+                        },
                     )
                     ->badge()
                     ->color(
-                        fn (?string $state): ?string => blank($state) ? null : AssignmentRole::from($state)->getColor(),
+                        fn (AssignmentRole|string|null $state): ?string => match (true) {
+                            $state instanceof AssignmentRole => $state->getColor(),
+                            blank($state) => null,
+                            default => AssignmentRole::from((string) $state)->getColor(),
+                        },
                     )
                     ->sortable(),
                 TextColumn::make('subject.name')

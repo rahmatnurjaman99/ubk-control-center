@@ -75,7 +75,11 @@ class SubjectsTable
         return TextColumn::make('school_level')
             ->label(__('filament.subjects.table.school_level'))
             ->formatStateUsing(
-                fn(?string $state): ?string => $state !== null ? SchoolLevel::from($state)->label() : null,
+                fn (SchoolLevel|string|null $state): ?string => match (true) {
+                    $state instanceof SchoolLevel => $state->label(),
+                    blank($state) => null,
+                    default => SchoolLevel::from((string) $state)->label(),
+                },
             )
             ->badge()
             ->sortable();
