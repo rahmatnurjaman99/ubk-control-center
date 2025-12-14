@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 
 class Guardian extends Model
 {
@@ -41,5 +42,16 @@ class Guardian extends Model
     public function students(): HasMany
     {
         return $this->hasMany(Student::class);
+    }
+
+    public static function generateGuardianNumber(): string
+    {
+        $prefix = 'GRD-' . now()->format('Ym');
+
+        do {
+            $number = $prefix . '-' . Str::upper(Str::random(4));
+        } while (self::withTrashed()->where('guardian_number', $number)->exists());
+
+        return $number;
     }
 }

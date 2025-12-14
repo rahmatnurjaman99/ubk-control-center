@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\SubjectCategories\Tables;
 
+use App\Support\Tables\Columns\CreatedAtColumn;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -21,6 +22,7 @@ class SubjectCategoriesTable
                 self::getNameColumn(),
                 self::getSlugColumn(),
                 self::getSubjectsCountColumn(),
+                CreatedAtColumn::make(),
                 self::getUpdatedAtColumn(),
             ])
             ->filters([

@@ -10,6 +10,7 @@ use App\Models\Province;
 use App\Models\Regency;
 use App\Models\Student;
 use App\Models\Village;
+use App\Support\AcademicYearResolver;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
@@ -80,6 +81,7 @@ class StudentForm
             ->relationship('academicYear', 'name')
             ->searchable()
             ->preload()
+            ->default(fn (): ?int => AcademicYearResolver::currentId())
             ->nullable()
             ->disabled();
     }
@@ -160,6 +162,7 @@ class StudentForm
             ->searchable()
             ->native(false)
             ->live()
+            ->partiallyRenderAfterStateUpdated()
             ->partiallyRenderComponentsAfterStateUpdated(['regency_id', 'district_id', 'village_id'])
             ->afterStateUpdated(function (Set $set): void {
                 $set('regency_id', null);

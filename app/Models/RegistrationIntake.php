@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Enums\GradeLevel;
 use App\Enums\RegistrationStatus;
+use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -58,6 +59,15 @@ class RegistrationIntake extends Model
         ];
     }
 
+    protected static function booted(): void
+    {
+        static::creating(function (self $intake): void {
+            if (blank($intake->form_number)) {
+                $intake->form_number = self::generateFormNumber();
+            }
+        });
+    }
+
     public function academicYear(): BelongsTo
     {
         return $this->belongsTo(AcademicYear::class);
@@ -84,5 +94,14 @@ class RegistrationIntake extends Model
     public function documents(): HasMany
     {
         return $this->hasMany(RegistrationIntakeDocument::class);
+    }
+
+    public static function generateFormNumber(): string
+    {
+        do {
+            $number = 'REG-' . now()->format('Ymd') . '-' . Str::upper(Str::random(4));
+        } while (self::withTrashed()->where('form_number', $number)->exists());
+
+        return $number;
     }
 }

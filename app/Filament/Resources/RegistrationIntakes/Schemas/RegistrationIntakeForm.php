@@ -6,6 +6,8 @@ namespace App\Filament\Resources\RegistrationIntakes\Schemas;
 
 use App\Enums\GradeLevel;
 use App\Enums\RegistrationStatus;
+use App\Models\RegistrationIntake;
+use App\Support\AcademicYearResolver;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
@@ -13,8 +15,11 @@ use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Str;
 
 class RegistrationIntakeForm
 {
@@ -22,6 +27,7 @@ class RegistrationIntakeForm
     {
         return $schema
             ->components([
+                self::getAcademicYearSection(),
                 self::getPaymentSection(),
                 self::getGuardianSection(),
                 self::getStudentSection(),
@@ -31,6 +37,21 @@ class RegistrationIntakeForm
             ->columns(1);
     }
 
+    private static function getAcademicYearSection(): Section
+    {
+        return Section::make(__('filament.registration_intakes.fields.academic_year'))
+            ->schema([
+                Select::make('academic_year_id')
+                    ->label(__('filament.registration_intakes.fields.academic_year'))
+                    ->relationship('academicYear', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->native(false)
+                    ->default(fn (): ?int => AcademicYearResolver::currentId())
+                    ->required(),
+            ]);
+    }
+
     private static function getPaymentSection(): Section
     {
         return Section::make(__('filament.registration_intakes.sections.payment'))
@@ -38,15 +59,37 @@ class RegistrationIntakeForm
             ->schema([
                 TextInput::make('form_number')
                     ->label(__('filament.registration_intakes.fields.form_number'))
+                    ->default(fn (): string => RegistrationIntake::generateFormNumber())
+                    ->readOnly()
                     ->required()
                     ->maxLength(50)
                     ->unique(ignoreRecord: true),
+                Select::make('payment_method')
+                    ->label(__('filament.registration_intakes.fields.payment_method'))
+                    ->options([
+                        'cash' => __('filament.registration_intakes.payment_methods.cash'),
+                        'transfer' => __('filament.registration_intakes.payment_methods.transfer'),
+                        // 'card' => __('filament.registration_intakes.payment_methods.card'),
+                    ])
+                    ->native(false)
+                    ->default('cash')
+                    ->live()
+                    ->afterStateUpdated(function (Set $set, ?string $state): void {
+                        if ($state === 'cash') {
+                            $set('payment_reference', self::generateCashPaymentReference());
+
+                            return;
+                        }
+
+                        $set('payment_reference', null);
+                    }),
                 TextInput::make('payment_reference')
                     ->label(__('filament.registration_intakes.fields.payment_reference'))
-                    ->maxLength(100),
-                TextInput::make('payment_method')
-                    ->label(__('filament.registration_intakes.fields.payment_method'))
-                    ->maxLength(50),
+                    ->maxLength(100)
+                    ->required(fn (Get $get): bool => $get('payment_method') === 'transfer')
+                    ->readOnly(fn (Get $get): bool => $get('payment_method') === 'cash')
+                    ->default(fn (): string => self::generateCashPaymentReference())
+                    ->helperText(__('filament.registration_intakes.helpers.payment_reference')),
                 TextInput::make('payment_amount')
                     ->label(__('filament.registration_intakes.fields.payment_amount'))
                     ->numeric()
@@ -97,20 +140,18 @@ class RegistrationIntakeForm
                 DatePicker::make('student_date_of_birth')
                     ->label(__('filament.registration_intakes.fields.student_date_of_birth'))
                     ->native(false),
-                TextInput::make('student_gender')
+                Select::make('student_gender')
                     ->label(__('filament.registration_intakes.fields.student_gender'))
-                    ->maxLength(20),
+                    ->options([
+                        'male' => __('filament.registration_intakes.gender.male'),
+                        'female' => __('filament.registration_intakes.gender.female'),
+                    ])
+                    ->native(false)
+                    ->nullable(),
                 Select::make('target_grade_level')
                     ->label(__('filament.registration_intakes.fields.target_grade_level'))
                     ->options(GradeLevel::options())
                     ->native(false),
-                Select::make('academic_year_id')
-                    ->label(__('filament.registration_intakes.fields.academic_year'))
-                    ->relationship('academicYear', 'name')
-                    ->searchable()
-                    ->preload()
-                    ->native(false)
-                    ->nullable(),
                 Select::make('classroom_id')
                     ->label(__('filament.registration_intakes.fields.classroom'))
                     ->relationship('classroom', 'name')
@@ -186,5 +227,10 @@ class RegistrationIntakeForm
                             ->columnSpanFull(),
                     ]),
             ]);
+    }
+
+    private static function generateCashPaymentReference(): string
+    {
+        return 'CASH-' . Str::upper(Str::random(6));
     }
 }

@@ -11,6 +11,8 @@ return [
         'status' => FeeStatus::Pending->value,
         'currency' => 'IDR',
         'due_in_days' => 14,
+        'allow_partial_payment' => false,
+        'require_partial_approval' => false,
         'grade_amounts' => [
             GradeLevel::Paud->value => 500000,
             GradeLevel::TkA->value => 550000,

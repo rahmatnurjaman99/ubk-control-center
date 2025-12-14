@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\Schedules\Schemas;
 
+use App\Models\Schedule;
+use App\Support\AcademicYearResolver;
 use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
@@ -13,7 +15,6 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use App\Models\Schedule;
 
 class ScheduleForm
 {
@@ -32,6 +33,13 @@ class ScheduleForm
         return Section::make(__('filament.schedules.sections.details'))
             ->columns(2)
             ->schema([
+                Select::make('academic_year_id')
+                    ->label(__('filament.schedules.fields.academic_year'))
+                    ->relationship('academicYear', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->default(fn (): ?int => AcademicYearResolver::currentId())
+                    ->required(),
                 TextInput::make('title')
                     ->label(__('filament.schedules.fields.title'))
                     ->maxLength(255)
@@ -54,12 +62,6 @@ class ScheduleForm
                     ->searchable()
                     ->preload()
                     ->nullable(),
-                Select::make('academic_year_id')
-                    ->label(__('filament.schedules.fields.academic_year'))
-                    ->relationship('academicYear', 'name')
-                    ->searchable()
-                    ->preload()
-                    ->required(),
                 DateTimePicker::make('starts_at')
                     ->label(__('filament.schedules.fields.starts_at'))
                     ->seconds(false)

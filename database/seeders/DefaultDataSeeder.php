@@ -13,6 +13,7 @@ use App\Enums\GradeLevel;
 use App\Enums\PaymentStatus;
 use App\Enums\RegistrationStatus;
 use App\Enums\SchoolLevel;
+use App\Enums\ScholarshipType;
 use App\Enums\StaffRole;
 use App\Enums\StudentStatus;
 use App\Enums\SystemRole;
@@ -27,6 +28,8 @@ use App\Models\FeeTemplate;
 use App\Models\Guardian;
 use App\Models\RegistrationIntake;
 use App\Models\RegistrationIntakeDocument;
+use App\Models\Scholarship;
+use App\Models\ScholarshipAssignment;
 use App\Models\Schedule;
 use App\Models\Staff;
 use App\Models\StaffAttendance;
@@ -37,6 +40,7 @@ use App\Models\Subject;
 use App\Models\SubjectCategory;
 use App\Models\Transaction;
 use App\Models\User;
+use App\Models\Village;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -372,6 +376,39 @@ class DefaultDataSeeder extends Seeder
         'sd_6' => 1_200_000,
     ];
 
+    /**
+     * @var array<int, array{
+     *     code: string,
+     *     name: string,
+     *     description: string,
+     *     type: ScholarshipType,
+     *     amount: float|int
+     * }>
+     */
+    private const SCHOLARSHIP_BLUEPRINTS = [
+        [
+            'code' => 'SCH-ACADEMIC',
+            'name' => 'Academic Excellence',
+            'description' => '25% tuition reduction for top performing students.',
+            'type' => ScholarshipType::Percentage,
+            'amount' => 25,
+        ],
+        [
+            'code' => 'SCH-SIBLING',
+            'name' => 'Sibling Support',
+            'description' => 'Family discount for students with siblings enrolled at the school.',
+            'type' => ScholarshipType::Percentage,
+            'amount' => 15,
+        ],
+        [
+            'code' => 'SCH-COMMUNITY',
+            'name' => 'Community Grant',
+            'description' => 'Fixed IDR 500.000 subsidy sponsored by local partners.',
+            'type' => ScholarshipType::Nominal,
+            'amount' => 500_000,
+        ],
+    ];
+
     private ?int $principalUserId = null;
 
     private ?int $financeUserId = null;
@@ -380,6 +417,11 @@ class DefaultDataSeeder extends Seeder
      * @var array<string, int>
      */
     private array $classroomStudentQuota = [];
+
+    /**
+     * @var Collection<int, Village>|null
+     */
+    private ?Collection $regionPool = null;
 
     public function run(): void
     {
@@ -395,8 +437,10 @@ class DefaultDataSeeder extends Seeder
         $this->seedClassroomStaff($classrooms, $staff, $subjects, $years['current']);
         $this->seedSchedules($classrooms, $subjects, $staff, $years['current']);
         $this->seedRecurringScheduleExample($years['current'], $classrooms);
-        $feeTemplates = $this->seedFeeTemplates();
-        $this->seedFees($students, $years['current'], $feeTemplates);
+        $feeTemplates = $this->seedFeeTemplates($years['current']);
+        $scholarships = $this->seedScholarships($years['current']);
+        $studentScholarships = $this->assignScholarships($students, $scholarships, $years['current']);
+        $this->seedFees($students, $years['current'], $feeTemplates, $studentScholarships);
         $this->seedAttendances($students, $staff);
         $this->seedRegistrationPipeline($years['next'], $classrooms);
     }
@@ -498,6 +542,7 @@ class DefaultDataSeeder extends Seeder
                 $user = $this->ensureUser($blueprint['staff_name'], $blueprint['email'], $blueprint['system_roles']);
 
                 $joinedOn = CarbonImmutable::create($blueprint['joined_year'], 7, 10);
+                $region = $this->randomRegionData();
 
                 $staff = Staff::updateOrCreate(
                     ['staff_number' => $blueprint['staff_number']],
@@ -512,6 +557,11 @@ class DefaultDataSeeder extends Seeder
                         'graduated_year' => $blueprint['graduated_year'],
                         'emergency_contact_name' => $blueprint['emergency_contact'],
                         'emergency_contact_phone' => $blueprint['emergency_phone'],
+                        'address' => $region['address'] ?? null,
+                        'province_id' => $region['province_id'] ?? null,
+                        'regency_id' => $region['regency_id'] ?? null,
+                        'district_id' => $region['district_id'] ?? null,
+                        'village_id' => $region['village_id'] ?? null,
                     ],
                 );
 
@@ -621,6 +671,8 @@ class DefaultDataSeeder extends Seeder
                         $studentUserId = $studentUser->id;
                     }
 
+                    $region = $this->randomRegionData();
+
                     $student = Student::updateOrCreate(
                         ['student_number' => $studentNumber],
                         [
@@ -634,6 +686,11 @@ class DefaultDataSeeder extends Seeder
                             'status' => StudentStatus::Active,
                             'enrolled_on' => $enrolledOn->toDateString(),
                             'legacy_reference' => 'LEG-STD-' . Str::padLeft((string) ($sequence + $index), 4, '0'),
+                            'address' => $region['address'] ?? null,
+                            'province_id' => $region['province_id'] ?? null,
+                            'regency_id' => $region['regency_id'] ?? null,
+                            'district_id' => $region['district_id'] ?? null,
+                            'village_id' => $region['village_id'] ?? null,
                         ],
                     );
 
@@ -828,12 +885,13 @@ class DefaultDataSeeder extends Seeder
     /**
      * @return Collection<int, FeeTemplate>
      */
-    private function seedFeeTemplates(): Collection
+    private function seedFeeTemplates(AcademicYear $year): Collection
     {
         return collect(self::TUITION_RATES)
             ->map(fn (int $amount, string $grade): FeeTemplate => FeeTemplate::updateOrCreate(
                 ['title' => sprintf('%s Tuition Template', GradeLevel::from($grade)->label())],
                 [
+                    'academic_year_id' => $year->id,
                     'grade_level' => GradeLevel::from($grade),
                     'type' => FeeType::Tuition,
                     'amount' => $amount,
@@ -847,17 +905,98 @@ class DefaultDataSeeder extends Seeder
     }
 
     /**
+     * @return Collection<int, Scholarship>
+     */
+    private function seedScholarships(AcademicYear $year): Collection
+    {
+        $startsOn = CarbonImmutable::parse($year->starts_on ?? now());
+        $endsOn = $year->ends_on !== null
+            ? CarbonImmutable::parse($year->ends_on)
+            : $startsOn->addYear();
+
+        return collect(self::SCHOLARSHIP_BLUEPRINTS)
+            ->map(fn (array $blueprint): Scholarship => Scholarship::updateOrCreate(
+                ['code' => $blueprint['code']],
+                [
+                    'name' => $blueprint['name'],
+                    'description' => $blueprint['description'],
+                    'type' => $blueprint['type'],
+                    'amount' => $blueprint['amount'],
+                    'starts_on' => $startsOn->toDateString(),
+                    'ends_on' => $endsOn->toDateString(),
+                    'is_active' => true,
+                ],
+            ))
+            ->values();
+    }
+
+    /**
+     * @param Collection<int, Student> $students
+     * @param Collection<int, Scholarship> $scholarships
+     * @return Collection<int, Scholarship>
+     */
+    private function assignScholarships(Collection $students, Collection $scholarships, AcademicYear $year): Collection
+    {
+        if ($scholarships->isEmpty()) {
+            return collect();
+        }
+
+        $effectiveFrom = CarbonImmutable::parse($year->starts_on ?? now());
+        $effectiveUntil = $year->ends_on !== null
+            ? CarbonImmutable::parse($year->ends_on)
+            : $effectiveFrom->addMonths(10);
+        $scholarshipCount = max($scholarships->count(), 1);
+
+        return $students
+            ->values()
+            ->filter(fn (Student $student, int $index): bool => $index % 5 === 0)
+            ->values()
+            ->mapWithKeys(function (Student $student, int $index) use ($scholarships, $scholarshipCount, $effectiveFrom, $effectiveUntil): array {
+                $scholarship = $scholarships->get($index % $scholarshipCount);
+
+                if ($scholarship === null) {
+                    return [];
+                }
+
+                ScholarshipAssignment::updateOrCreate(
+                    [
+                        'scholarship_id' => $scholarship->id,
+                        'student_id' => $student->id,
+                        'effective_from' => $effectiveFrom->toDateString(),
+                    ],
+                    [
+                        'effective_until' => $effectiveUntil->toDateString(),
+                        'is_active' => true,
+                        'notes' => 'Seeded scholarship coverage',
+                    ],
+                );
+
+                $student->setRelation('scholarships', collect([$scholarship]));
+
+                return [$student->id => $scholarship];
+            });
+    }
+
+    /**
      * @param Collection<int, Student> $students
      * @param Collection<int, FeeTemplate> $templates
+     * @param Collection<int, Scholarship> $studentScholarships keyed by student id
      */
-    private function seedFees(Collection $students, AcademicYear $year, Collection $templates): void
+    private function seedFees(
+        Collection $students,
+        AcademicYear $year,
+        Collection $templates,
+        Collection $studentScholarships
+    ): void
     {
         $templatesByGrade = $templates->keyBy(fn (FeeTemplate $template): string => $template->grade_level?->value ?? '');
         $financeUserId = $this->financeUserId ?? User::query()->first()?->id;
 
-        $students->each(function (Student $student) use ($year, $templatesByGrade, $financeUserId): void {
+        $students->each(function (Student $student) use ($year, $templatesByGrade, $financeUserId, $studentScholarships): void {
             $grade = $student->classroom?->grade_level ?? GradeLevel::Sd1;
-            $amount = $this->resolveTuitionAmount($grade);
+            $baseAmount = $this->resolveTuitionAmount($grade);
+            $scholarship = $studentScholarships->get($student->id);
+            [$amount, $discountAmount, $discountPercent] = $this->calculateScholarshipAdjustments($baseAmount, $scholarship);
             $periods = [
                 ['offset' => -1, 'status' => FeeStatus::Paid, 'payment' => PaymentStatus::Paid, 'ratio' => 1.0],
                 ['offset' => 0, 'status' => FeeStatus::Partial, 'payment' => PaymentStatus::Partial, 'ratio' => 0.5],
@@ -882,7 +1021,11 @@ class DefaultDataSeeder extends Seeder
                         'counterparty_name' => $student->full_name,
                         'recorded_by' => $financeUserId,
                         'notes' => 'System generated tuition entry',
-                        'metadata' => $this->systemMetadata('tuition_transaction', ['grade_level' => $grade->value]),
+                        'metadata' => $this->systemMetadata('tuition_transaction', [
+                            'grade_level' => $grade->value,
+                            'base_amount' => $baseAmount,
+                            'scholarship_id' => $scholarship?->id,
+                        ]),
                     ],
                 );
 
@@ -904,7 +1047,11 @@ class DefaultDataSeeder extends Seeder
                         'metadata' => $this->systemMetadata('tuition_fee', [
                             'grade_level' => $grade->value,
                             'template_id' => $templatesByGrade->get($grade->value)?->id,
+                            'base_amount' => $baseAmount,
                         ]),
+                        'scholarship_id' => $scholarship?->id,
+                        'scholarship_discount_amount' => $discountAmount,
+                        'scholarship_discount_percent' => $discountPercent,
                     ],
                 );
             }
@@ -1049,8 +1196,11 @@ class DefaultDataSeeder extends Seeder
 
     private function buildStudentName(int $sequence): string
     {
-        $first = self::STUDENT_FIRST_NAMES[$sequence % count(self::STUDENT_FIRST_NAMES)];
-        $last = self::STUDENT_LAST_NAMES[$sequence % count(self::STUDENT_LAST_NAMES)];
+        $firstCount = count(self::STUDENT_FIRST_NAMES);
+        $lastCount = count(self::STUDENT_LAST_NAMES);
+        $offset = max($sequence - 1, 0);
+        $first = self::STUDENT_FIRST_NAMES[$offset % $firstCount];
+        $last = self::STUDENT_LAST_NAMES[intdiv($offset, $firstCount) % $lastCount];
 
         return $first . ' ' . $last;
     }
@@ -1081,6 +1231,32 @@ class DefaultDataSeeder extends Seeder
     }
 
     /**
+     * @return array{0: float, 1: float, 2: ?int}
+     */
+    private function calculateScholarshipAdjustments(float $amount, ?Scholarship $scholarship): array
+    {
+        if ($scholarship === null || $amount <= 0) {
+            return [$amount, 0.0, null];
+        }
+
+        $discount = 0.0;
+        $percent = null;
+        $value = (float) $scholarship->amount;
+
+        if ($scholarship->type === ScholarshipType::Percentage) {
+            $percent = (int) round(min(100, max(0, $value)));
+            $discount = ($amount * $percent) / 100;
+        } else {
+            $discount = min($amount, $value);
+            $percent = $amount > 0 ? (int) round(($discount / $amount) * 100) : null;
+        }
+
+        $adjusted = max($amount - $discount, 0);
+
+        return [$adjusted, $discount, $percent];
+    }
+
+    /**
      * @param array<string, mixed> $extra
      * @return array<string, mixed>
      */
@@ -1091,6 +1267,51 @@ class DefaultDataSeeder extends Seeder
             'locked_by' => SystemRole::SuperAdmin->value,
             'tag' => $tag,
         ], $extra);
+    }
+
+    /**
+     * @return array{address: ?string, province_id: ?string, regency_id: ?string, district_id: ?string, village_id: ?string}
+     */
+    private function randomRegionData(): array
+    {
+        if ($this->regionPool === null || $this->regionPool->isEmpty()) {
+            $this->regionPool = Village::query()
+                ->with('district.regency.province')
+                ->inRandomOrder()
+                ->limit(500)
+                ->get();
+        }
+
+        $village = $this->regionPool->pop();
+
+        if ($village === null) {
+            return [
+                'address' => null,
+                'province_id' => null,
+                'regency_id' => null,
+                'district_id' => null,
+                'village_id' => null,
+            ];
+        }
+
+        $district = $village->district;
+        $regency = $district?->regency;
+        $province = $regency?->province;
+
+        $address = sprintf(
+            'Jl. Pendidikan No. %d, %s, %s',
+            random_int(1, 250),
+            $village->name ?? 'Kelurahan',
+            $regency?->name ?? 'Kota/Kabupaten',
+        );
+
+        return [
+            'address' => $address,
+            'province_id' => $province?->id,
+            'regency_id' => $regency?->id,
+            'district_id' => $district?->id,
+            'village_id' => $village->id,
+        ];
     }
 
     /**

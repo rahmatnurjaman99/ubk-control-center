@@ -11,11 +11,14 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class Student extends Model
 {
@@ -95,6 +98,37 @@ class Student extends Model
     public function village(): BelongsTo
     {
         return $this->belongsTo(Village::class);
+    }
+
+    /**
+     * @return BelongsToMany<Scholarship>
+     */
+    public function scholarships(): BelongsToMany
+    {
+        return $this->belongsToMany(Scholarship::class)
+            ->withPivot(['effective_from', 'effective_until', 'is_active', 'notes'])
+            ->withTimestamps();
+    }
+
+    /**
+     * @return BelongsToMany<Scholarship>
+     */
+    public function activeScholarships(): BelongsToMany
+    {
+        return $this->scholarships()
+            ->wherePivot('is_active', true)
+            ->where(function ($query): void {
+                $today = Carbon::today()->toDateString();
+
+                $query->whereNull('effective_from')
+                    ->orWhere('effective_from', '<=', $today);
+            })
+            ->where(function ($query): void {
+                $today = Carbon::today()->toDateString();
+
+                $query->whereNull('effective_until')
+                    ->orWhere('effective_until', '>=', $today);
+            });
     }
 
     /**
@@ -216,6 +250,23 @@ class Student extends Model
         return $this->determineCurrentGradeLevel()?->next();
     }
 
+    public function hasActiveScholarshipForYear(?AcademicYear $academicYear = null): bool
+    {
+        $referenceDate = $academicYear?->ends_on ?? Carbon::today();
+
+        return $this->scholarships()
+            ->wherePivot('is_active', true)
+            ->where(function ($query) use ($referenceDate): void {
+                $query->whereNull('effective_from')
+                    ->orWhere('effective_from', '<=', $referenceDate);
+            })
+            ->where(function ($query) use ($referenceDate): void {
+                $query->whereNull('effective_until')
+                    ->orWhere('effective_until', '>=', $referenceDate);
+            })
+            ->exists();
+    }
+
     protected function photoUrl(): Attribute
     {
         return Attribute::make(
@@ -235,5 +286,16 @@ class Student extends Model
         };
 
         return "https://ui-avatars.com/api/?name={$name}&background={$background}&color=FFFFFF&size=256";
+    }
+
+    public static function generateStudentNumber(): string
+    {
+        $prefix = 'STD-' . now()->format('Ym');
+
+        do {
+            $number = $prefix . '-' . Str::upper(Str::random(4));
+        } while (self::withTrashed()->where('student_number', $number)->exists());
+
+        return $number;
     }
 }

@@ -22,9 +22,11 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
+            IndoRegionSeeder::class,
             SystemRolesSeeder::class,
             StaffRoleSeeder::class,
             DefaultDataSeeder::class,
+            SampleDataSeeder::class
         ]);
 
         $superAdminRole = Utils::createRole(SystemRole::SuperAdmin->value);

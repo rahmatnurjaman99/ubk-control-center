@@ -6,6 +6,7 @@ namespace App\Filament\Resources\FeeTemplates\Tables;
 
 use App\Enums\FeeType;
 use App\Enums\GradeLevel;
+use App\Support\Tables\Columns\CreatedAtColumn;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -30,6 +31,10 @@ class FeeTemplatesTable
                     ->label(__('filament.fee_templates.table.title'))
                     ->searchable()
                     ->sortable(),
+                TextColumn::make('academicYear.name')
+                    ->label(__('filament.fee_templates.table.academic_year'))
+                    ->sortable()
+                    ->toggleable(),
                 TextColumn::make('grade_level')
                     ->label(__('filament.fee_templates.table.grade_level'))
                     ->badge()
@@ -51,8 +56,12 @@ class FeeTemplatesTable
                 IconColumn::make('is_active')
                     ->label(__('filament.fee_templates.table.is_active'))
                     ->boolean(),
+                CreatedAtColumn::make(),
             ])
             ->filters([
+                SelectFilter::make('academic_year_id')
+                    ->label(__('filament.fee_templates.filters.academic_year'))
+                    ->relationship('academicYear', 'name'),
                 SelectFilter::make('grade_level')
                     ->label(__('filament.fee_templates.filters.grade_level'))
                     ->options(GradeLevel::options()),

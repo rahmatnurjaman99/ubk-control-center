@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Number;
 use Illuminate\Support\Str;
 
 class Fee extends Model
@@ -34,6 +35,13 @@ class Fee extends Model
         'paid_at',
         'description',
         'paid_amount',
+        'allow_partial_payment',
+        'requires_partial_approval',
+        'partial_payment_approved_at',
+        'partial_payment_approved_by',
+        'scholarship_id',
+        'scholarship_discount_amount',
+        'scholarship_discount_percent',
         'metadata',
     ];
 
@@ -49,6 +57,10 @@ class Fee extends Model
             'paid_amount' => 'decimal:2',
             'due_date' => 'date',
             'paid_at' => 'datetime',
+            'allow_partial_payment' => 'boolean',
+            'requires_partial_approval' => 'boolean',
+            'partial_payment_approved_at' => 'datetime',
+            'scholarship_discount_amount' => 'decimal:2',
             'metadata' => 'array',
         ];
     }
@@ -118,11 +130,78 @@ class Fee extends Model
         return $this->belongsTo(Transaction::class);
     }
 
+    public function scholarship(): BelongsTo
+    {
+        return $this->belongsTo(Scholarship::class);
+    }
+
+    public function partialPaymentApprover(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'partial_payment_approved_by');
+    }
+
     public function getOutstandingAmountAttribute(): float
     {
         $amount = (float) $this->amount;
         $paid = (float) ($this->paid_amount ?? 0);
 
         return max($amount - $paid, 0);
+    }
+
+    public function canProcessPartialPayment(): bool
+    {
+        if (! $this->allow_partial_payment) {
+            return false;
+        }
+
+        if (! $this->requires_partial_approval) {
+            return true;
+        }
+
+        return $this->partial_payment_approved_at !== null;
+    }
+
+    public function hasScholarship(): bool
+    {
+        return $this->scholarship_id !== null;
+    }
+
+    public function formattedScholarshipDiscount(): ?string
+    {
+        if (! $this->hasScholarship()) {
+            return null;
+        }
+
+        $parts = [];
+
+        if ($this->scholarship?->name) {
+            $parts[] = $this->scholarship->name;
+        }
+
+        if ($this->scholarship_discount_percent !== null) {
+            $parts[] = $this->scholarship_discount_percent . '%';
+        }
+
+        if ((float) ($this->scholarship_discount_amount ?? 0) > 0) {
+            $parts[] = Number::currency(
+                (float) $this->scholarship_discount_amount,
+                $this->currency ?? 'IDR',
+            );
+        }
+
+        return $parts === [] ? null : implode(' • ', $parts);
+    }
+
+    public function scholarshipDiscountResult(float $amount = 0): float
+    {
+        if (! $this->hasScholarship()) {
+            return 0;
+        }
+
+        if($this->scholarship_discount_percent !== null){
+            return (int) ($amount * ($this->scholarship_discount_percent / 100));
+        }
+
+        return (int) $this->scholarship_discount_amount;
     }
 }

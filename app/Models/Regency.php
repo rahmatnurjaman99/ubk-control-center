@@ -15,6 +15,10 @@ class Regency extends Model
 
     protected $table = 'regencies';
 
+    protected $keyType = 'string';
+
+    public $incrementing = false;
+
     protected $hidden = [
         'province_id',
     ];

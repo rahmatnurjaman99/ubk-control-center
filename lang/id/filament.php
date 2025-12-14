@@ -13,6 +13,10 @@ return [
         'attendance' => 'Kehadiran',
     ],
 
+    'common' => [
+        'created_at' => 'Dibuat pada',
+    ],
+
     'school_levels' => [
         'paud' => 'PAUD',
         'tk' => 'Taman Kanak-kanak',
@@ -429,6 +433,7 @@ return [
             'type' => 'Tipe',
             'category' => 'Kategori',
             'amount' => 'Jumlah',
+            'scholarships' => 'Potongan beasiswa',
             'currency' => 'Mata uang',
             'payment_status' => 'Status pembayaran',
             'payment_method' => 'Metode bayar',
@@ -446,6 +451,7 @@ return [
             'type' => 'Tipe',
             'category' => 'Kategori',
             'amount' => 'Jumlah',
+            'scholarships' => 'Beasiswa',
             'payment_status' => 'Pembayaran',
             'paid_at' => 'Bayar pada',
             'recorded_by' => 'Dicatat oleh',
@@ -456,6 +462,9 @@ return [
             'payment_status' => 'Status pembayaran',
             'academic_year' => 'Tahun ajaran',
             'trashed' => 'Data terhapus',
+        ],
+        'sections' => [
+            'scholarships' => 'Potongan beasiswa',
         ],
     ],
 
@@ -472,6 +481,7 @@ return [
             'title' => 'Judul',
             'type' => 'Jenis tagihan',
             'amount' => 'Jumlah',
+            'base_amount' => 'Jumlah sebelum diskon',
             'paid_amount' => 'Jumlah dibayar',
             'outstanding_amount' => 'Sisa tagihan',
             'currency' => 'Mata uang',
@@ -479,21 +489,38 @@ return [
             'status' => 'Status',
             'paid_at' => 'Dibayar pada',
             'student' => 'Siswa',
+            'classroom' => 'Kelas',
             'academic_year' => 'Tahun ajaran',
             'transaction' => 'Transaksi',
             'description' => 'Deskripsi',
+            'scholarship' => 'Beasiswa',
+            'scholarship_discount' => 'Diskon beasiswa',
+            'apply_scholarship' => 'Terapkan diskon beasiswa',
+            'net_amount' => 'Jumlah setelah diskon',
+        ],
+        'sections' => [
+            'billing' => 'Ringkasan tagihan',
+        ],
+        'scholarships' => [
+            'none' => 'Tidak ada beasiswa',
+            'unknown_base' => 'Tidak tersedia',
         ],
         'table' => [
             'reference' => 'Referensi',
             'title' => 'Judul',
             'student' => 'Siswa',
             'type' => 'Jenis',
+            'base_amount' => 'Dasar',
             'amount' => 'Jumlah',
+            'discount' => 'Diskon',
+            'after_discount' => 'Setelah diskon',
             'paid_amount' => 'Dibayar',
             'outstanding' => 'Sisa',
+            'scholarship' => 'Diskon beasiswa',
             'status' => 'Status',
             'due_date' => 'Jatuh tempo',
             'paid_at' => 'Bayar pada',
+            'created_at' => 'Dibuat pada',
         ],
         'filters' => [
             'type' => 'Jenis',
@@ -699,6 +726,7 @@ return [
         ],
         'fields' => [
             'title' => 'Judul',
+            'academic_year' => 'Tahun ajaran',
             'grade_level' => 'Jenjang',
             'type' => 'Jenis tagihan',
             'amount' => 'Jumlah',
@@ -709,6 +737,7 @@ return [
         ],
         'table' => [
             'title' => 'Judul',
+            'academic_year' => 'Tahun ajaran',
             'grade_level' => 'Jenjang',
             'type' => 'Jenis',
             'amount' => 'Jumlah',
@@ -717,6 +746,7 @@ return [
             'is_active' => 'Aktif',
         ],
         'filters' => [
+            'academic_year' => 'Tahun ajaran',
             'grade_level' => 'Jenjang',
             'type' => 'Jenis',
             'is_active' => 'Status',
@@ -941,6 +971,16 @@ return [
             'document_type' => 'Jenis dokumen',
             'document_file' => 'Berkas',
             'document_notes' => 'Catatan dokumen',
+            'scholarships' => 'Beasiswa',
+        ],
+        'payment_methods' => [
+            'cash' => 'Tunai',
+            'transfer' => 'Transfer bank',
+            'card' => 'Kartu',
+        ],
+        'gender' => [
+            'male' => 'Laki-laki',
+            'female' => 'Perempuan',
         ],
         'table' => [
             'form_number' => 'Formulir',
@@ -970,6 +1010,9 @@ return [
         ],
         'validation' => [
             'classroom_full' => 'Kelas :classroom sudah penuh.',
+        ],
+        'helpers' => [
+            'payment_reference' => 'Untuk transfer bank, isi nomor referensi pada bukti transfer (mis. BCA-TRF-2024-001). Pembayaran tunai terisi otomatis.',
         ],
     ],
 
@@ -1003,6 +1046,7 @@ return [
             'document_type' => 'Jenis dokumen',
             'document_file' => 'Berkas',
             'document_notes' => 'Catatan dokumen',
+            'scholarships' => 'Beasiswa',
         ],
         'genders' => [
             'male' => 'Laki-laki',
@@ -1029,28 +1073,48 @@ return [
         'actions' => [
             'promote' => 'Naik Kelas / Lulus',
             'target_academic_year' => 'Tahun ajaran tujuan',
-            'target_grade_level' => 'Tingkat berikutnya (opsional)',
+            'target_grade_level' => 'Tingkat berikutnya',
             'target_classroom' => 'Kelas tujuan (opsional)',
+            'promote_submit' => 'Naikkan siswa',
             'success_promoted' => 'Siswa naik ke :grade',
             'success_graduated' => 'Siswa dinyatakan lulus.',
             'promotion_fees_created' => 'Tagihan dibuat: :fees.',
             'eligibility_status' => 'Status kelayakan',
             'eligibility_ready' => 'Layak naik kelas (semua tagihan lunas).',
             'eligibility_pending_fees' => 'Masih ada tagihan. Perlu persetujuan sebelum naik kelas.',
+            'eligibility_pending_graduation_fees' => 'Masih ada tagihan. Perlu persetujuan sebelum lulus.',
             'eligibility_pending_scores' => 'Menunggu data kelayakan akademik.',
             'outstanding_fees' => 'Tagihan tertunggak',
             'outstanding_fees_message' => ':count tagihan tertunggak total :amount. Pastikan mendapat persetujuan.',
             'override_outstanding_fees' => 'Izinkan naik kelas walau masih ada tagihan.',
+            'override_outstanding_graduation_fees' => 'Izinkan kelulusan walau masih ada tagihan.',
             'outstanding_fees_confirmation_required' => 'Konfirmasi diperlukan sebelum melanjutkan dengan tagihan tertunggak.',
             'view_fees' => 'Buka daftar tagihan',
             'graduation_notice_label' => 'Catatan kelulusan',
             'graduation_notice' => 'Siswa ini berada di tingkat akhir. Menyetujui aksi ini akan menandai siswa sebagai lulus.',
+            'graduated_label' => 'Lulus',
+            'repeat_grade' => 'Tetapkan tidak naik kelas',
+            'repeat_grade_label' => 'Tingkat saat ini',
+            'repeat_grade_unknown' => 'Tingkat belum tersedia',
+            'repeat_current_grade_toggle' => 'Tetap di tingkat saat ini (ulang tahun ini)',
+            'repeat_current_grade_description' => 'Siswa tetap di :grade untuk tahun ajaran yang dipilih.',
+            'repeat_submit' => 'Tetapkan ulang tahun ajaran',
+            'repeat_success' => 'Siswa ditetapkan ulang ke :grade untuk tahun ajaran :year.',
+            'repeat_unavailable' => 'Tingkat siswa tidak dapat ditentukan.',
+            'next_academic_year_required_title' => 'Perlu tahun ajaran berikut',
+            'next_academic_year_required_description' => 'Buat tahun ajaran berikut sebelum menaikkan atau mengulang siswa.',
+            'open_academic_years' => 'Buka daftar Tahun Ajaran',
+            'ineligible_grade_label' => 'Menunggu persetujuan sebelum memilih tingkat berikutnya.',
         ],
         'bulk_promotion' => [
             'modal_heading' => 'Kirim ke daftar persetujuan kenaikan',
             'modal_description' => 'Siswa terpilih akan muncul di halaman Persetujuan Kenaikan agar tim akademik dapat meninjau dan mengeksekusi kenaikan di sana.',
             'modal_submit' => 'Kirim permintaan',
             'notification_body' => 'Selanjutnya, buka halaman Persetujuan Kenaikan untuk meninjau dan menyetujui permintaan ini.',
+        ],
+        'filters' => [
+            'scholarships' => 'Beasiswa',
+            'current_academic_year' => 'Hanya tahun ajaran berjalan',
         ],
         'fees' => [
             'heading' => 'Riwayat tagihan',
@@ -1072,9 +1136,6 @@ return [
                 'completed' => 'Impor legacy selesai: :success berhasil, :failed gagal dari total :total baris.',
             ],
             'assignment_note' => 'Diimpor dari referensi legacy :reference',
-        ],
-        'filters' => [
-            'current_academic_year' => 'Hanya tahun ajaran berjalan',
         ],
     ],
     'promotion_approvals' => [
@@ -1214,6 +1275,70 @@ return [
         ],
         'messages' => [
             'all_segments_completed' => 'Semua segmen pada target ini sudah selesai dievaluasi.',
+        ],
+    ],
+    'scholarships' => [
+        'navigation' => [
+            'label' => 'Beasiswa',
+        ],
+        'model' => [
+            'singular' => 'Beasiswa',
+            'plural' => 'Beasiswa',
+        ],
+        'fields' => [
+            'name' => 'Nama program',
+            'code' => 'Kode',
+            'description' => 'Deskripsi',
+            'type' => 'Tipe',
+            'amount' => 'Nilai',
+            'discount' => 'Potongan',
+            'starts_on' => 'Mulai berlaku',
+            'ends_on' => 'Berakhir',
+            'period' => 'Periode',
+            'is_active' => 'Aktif',
+            'effective_from' => 'Efektif mulai',
+            'effective_until' => 'Efektif sampai',
+            'notes' => 'Catatan',
+        ],
+        'types' => [
+            'percentage' => 'Persentase',
+            'nominal' => 'Nominal',
+        ],
+        'statuses' => [
+            'active' => 'Aktif',
+            'inactive' => 'Tidak aktif',
+        ],
+        'filters' => [
+            'status' => 'Status',
+        ],
+        'sections' => [
+            'student_assignments' => 'Beasiswa',
+        ],
+    ],
+    'scholarship_assignments' => [
+        'navigation' => [
+            'label' => 'Penugasan Beasiswa',
+        ],
+        'model' => [
+            'singular' => 'Penugasan Beasiswa',
+            'plural' => 'Penugasan Beasiswa',
+        ],
+        'fields' => [
+            'scholarship' => 'Program beasiswa',
+            'student' => 'Siswa',
+            'effective_from' => 'Efektif mulai',
+            'effective_until' => 'Efektif sampai',
+            'is_active' => 'Aktif',
+            'notes' => 'Catatan',
+        ],
+        'filters' => [
+            'scholarship' => 'Beasiswa',
+            'student' => 'Siswa',
+            'status' => 'Status',
+        ],
+        'statuses' => [
+            'active' => 'Aktif',
+            'inactive' => 'Tidak aktif',
         ],
     ],
 ];

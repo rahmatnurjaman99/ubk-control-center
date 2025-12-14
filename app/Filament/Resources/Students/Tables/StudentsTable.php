@@ -8,6 +8,7 @@ use App\Enums\GradeLevel;
 use App\Enums\PromotionApprovalStatus;
 use App\Enums\StudentStatus;
 use App\Filament\Resources\Students\Imports\LegacyStudentImporter;
+use App\Support\Tables\Columns\CreatedAtColumn;
 use App\Models\AcademicYear;
 use App\Models\Classroom;
 use App\Models\PromotionApproval;
@@ -49,15 +50,24 @@ class StudentsTable
                 self::getGradeLevelColumn(),
                 self::getPromotionEligibilityColumn(),
                 self::getStatusColumn(),
+                self::getScholarshipsColumn(),
                 self::getEnrolledOnColumn(),
                 self::getProvinceColumn(),
+                self::getRegencyColumn(),
+                self::getDistrictColumn(),
+                self::getVillageColumn(),
+                CreatedAtColumn::make(),
             ])
             ->filters([
                 self::getStatusFilter(),
                 self::getAcademicYearFilter(),
                 self::getCurrentAcademicYearFilter(),
                 self::getClassroomFilter(),
+                self::getScholarshipFilter(),
                 self::getProvinceFilter(),
+                self::getRegencyFilter(),
+                self::getDistrictFilter(),
+                self::getVillageFilter(),
                 TrashedFilter::make(),
             ])
             ->headerActions([
@@ -150,9 +160,15 @@ class StudentsTable
     {
         return TextColumn::make('promotionEligibility')
             ->label(__('filament.students.actions.eligibility_status'))
-            ->state(fn (Student $record): string => $record->hasOutstandingFees()
-                ? __('filament.students.actions.eligibility_pending_fees')
-                : __('filament.students.actions.eligibility_ready'))
+            ->state(function (Student $record): string {
+                if ($record->hasOutstandingFees()) {
+                    return $record->determineCurrentGradeLevel()?->isTerminal()
+                        ? __('filament.students.actions.eligibility_pending_graduation_fees')
+                        : __('filament.students.actions.eligibility_pending_fees');
+                }
+
+                return __('filament.students.actions.eligibility_ready');
+            })
             ->badge()
             ->color(fn (Student $record): string => $record->hasOutstandingFees() ? 'warning' : 'success')
             ->toggleable();
@@ -178,6 +194,17 @@ class StudentsTable
             ->sortable();
     }
 
+    private static function getScholarshipsColumn(): TextColumn
+    {
+        return TextColumn::make('scholarships.name')
+            ->label(__('filament.students.fields.scholarships'))
+            ->badge()
+            ->separator(', ')
+            ->color('info')
+            ->toggleable(isToggledHiddenByDefault: true)
+            ->placeholder('—');
+    }
+
     private static function getEnrolledOnColumn(): TextColumn
     {
         return TextColumn::make('enrolled_on')
@@ -191,6 +218,27 @@ class StudentsTable
     {
         return TextColumn::make('province.name')
             ->label(__('filament.students.fields.province'))
+            ->toggleable(isToggledHiddenByDefault: true);
+    }
+
+    private static function getRegencyColumn(): TextColumn
+    {
+        return TextColumn::make('regency.name')
+            ->label(__('filament.students.fields.regency'))
+            ->toggleable(isToggledHiddenByDefault: true);
+    }
+
+    private static function getDistrictColumn(): TextColumn
+    {
+        return TextColumn::make('district.name')
+            ->label(__('filament.students.fields.district'))
+            ->toggleable(isToggledHiddenByDefault: true);
+    }
+
+    private static function getVillageColumn(): TextColumn
+    {
+        return TextColumn::make('village.name')
+            ->label(__('filament.students.fields.village'))
             ->toggleable(isToggledHiddenByDefault: true);
     }
 
@@ -224,6 +272,44 @@ class StudentsTable
         return SelectFilter::make('province_id')
             ->label(__('filament.students.fields.province'))
             ->relationship('province', 'name')
+            ->searchable()
+            ->native(false);
+    }
+
+    private static function getScholarshipFilter(): SelectFilter
+    {
+        return SelectFilter::make('scholarships')
+            ->label(__('filament.students.filters.scholarships'))
+            ->relationship('scholarships', 'name')
+            ->searchable()
+            ->preload()
+            ->multiple()
+            ->native(false);
+    }
+
+    private static function getRegencyFilter(): SelectFilter
+    {
+        return SelectFilter::make('regency_id')
+            ->label(__('filament.students.fields.regency'))
+            ->relationship('regency', 'name')
+            ->searchable()
+            ->native(false);
+    }
+
+    private static function getDistrictFilter(): SelectFilter
+    {
+        return SelectFilter::make('district_id')
+            ->label(__('filament.students.fields.district'))
+            ->relationship('district', 'name')
+            ->searchable()
+            ->native(false);
+    }
+
+    private static function getVillageFilter(): SelectFilter
+    {
+        return SelectFilter::make('village_id')
+            ->label(__('filament.students.fields.village'))
+            ->relationship('village', 'name')
             ->searchable()
             ->native(false);
     }

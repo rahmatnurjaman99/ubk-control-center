@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources\Classrooms\RelationManagers;
 
 use App\Enums\GradeLevel;
+use App\Support\AcademicYearResolver;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -29,15 +30,16 @@ class ClassroomAssignmentsRelationManager extends RelationManager
         return $schema
             ->columns(2)
             ->components([
-                Select::make('student_id')
-                    ->label(__('filament.classroom_assignments.fields.student'))
-                    ->relationship('student', 'full_name')
-                    ->searchable()
-                    ->preload()
-                    ->required(),
                 Select::make('academic_year_id')
                     ->label(__('filament.classroom_assignments.fields.academic_year'))
                     ->relationship('academicYear', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->default(fn (): ?int => AcademicYearResolver::currentId())
+                    ->required(),
+                Select::make('student_id')
+                    ->label(__('filament.classroom_assignments.fields.student'))
+                    ->relationship('student', 'full_name')
                     ->searchable()
                     ->preload()
                     ->required(),

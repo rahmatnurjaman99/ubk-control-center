@@ -11,14 +11,14 @@
     - [x] Create `Guardian` model and migration (linked to `User`) <!-- id: 43 -->
     - [x] Create `Student` model and migration (linked to `Guardian`) <!-- id: 4 -->
     - [x] Create `SubjectCategory` model and migration <!-- id: 46 -->
-    - [ ] Create `Subject` model and migration <!-- id: 6 -->
+    - [x] Create `Subject` model and migration <!-- id: 6 -->
     - [x] Create `Classroom` model and migration (with School Level) <!-- id: 7 -->
     - [x] Create `ClassroomStaff` (Assignment History) model and migration <!-- id: 26 -->
     - [x] Create `RegistrationIntake` model and migration <!-- id: 49 -->
     - [x] Create `StaffAttendance` model and migration <!-- id: 31 -->
-    - [ ] Create `SalaryStructure` model and migration <!-- id: 33 -->
-    - [ ] Create `Payroll` model and migration <!-- id: 34 -->
-    - [ ] Create `PayrollItem` model and migration (per-staff breakdown) <!-- id: 51 -->
+    - [x] Create `SalaryStructure` model and migration <!-- id: 33 -->
+    - [x] Create `Payroll` model and migration <!-- id: 34 -->
+    - [x] Create `PayrollItem` model and migration (per-staff breakdown) <!-- id: 51 -->
     - [x] Create `Fee` model and migration (Tuition, etc.) <!-- id: 35 -->
     - [x] Create `Transaction` model and migration (Payments) <!-- id: 36 -->
     - [x] Create `Schedule` / `Timetable` model and migration <!-- id: 8 -->
@@ -26,6 +26,11 @@
     - [ ] Create `Grade` / `Mark` model and migration <!-- id: 10 -->
     - [x] Create `TahfidzTarget` model and migration <!-- id: 56 -->
     - [x] Create `TahfidzLog` model and migration <!-- id: 57 -->
+    - [x] Create `Scholarship` model & migration (percentage / nominal support) <!-- id: 63 -->
+    - [x] Create `ScholarshipAssignment` / pivot model for students <!-- id: 64 -->
+    - [ ] Create `FeePartialApproval` model & migration <!-- id: 65 -->
+    - [x] Seed IndoRegion data and assign regions to seeded staff & students <!-- id: 70 -->
+    - [x] Seed scholarship programs with demo student assignments <!-- id: 71 -->
 
 - [ ] **Filament Resources**
     - [x] Create `AcademicYearResource` <!-- id: 11 -->
@@ -34,14 +39,14 @@
     - [x] Create `StudentResource` <!-- id: 12 -->
     - [x] Create `SubjectCategoryResource` <!-- id: 47 -->
         - [x] Implement Subjects RelationManager <!-- id: 48 -->
-    - [ ] Create `SubjectResource` <!-- id: 14 -->
+    - [x] Create `SubjectResource` <!-- id: 14 -->
     - [x] Create `ClassroomResource` <!-- id: 15 -->
         - [x] Implement RelationManager for Teacher Assignments (History) <!-- id: 27 -->
     - [x] Create `RegistrationIntakeResource` <!-- id: 50 -->
     - [x] Create `StaffAttendanceResource` <!-- id: 32 -->
-    - [ ] Create `PayrollResource` <!-- id: 37 -->
-    - [ ] Create `SalaryStructureResource` <!-- id: 52 -->
-    - [ ] Create `PayrollItem` RelationManager (within Payroll) <!-- id: 53 -->
+    - [x] Create `PayrollResource` <!-- id: 37 -->
+    - [x] Create `SalaryStructureResource` <!-- id: 52 -->
+    - [x] Create `PayrollItem` RelationManager (within Payroll) <!-- id: 53 -->
     - [x] Create `FeeResource` <!-- id: 38 -->
     - [x] Create `TransactionResource` (Income & Outcome) <!-- id: 39 -->
     - [ ] Create `FinanceStatsOverview` Widget (Dashboard) <!-- id: 42 -->
@@ -51,6 +56,8 @@
     - [ ] Create `GradeResource` <!-- id: 19 -->
     - [x] Create `TahfidzTargetResource` (teacher + guardian visibility) <!-- id: 58 -->
     - [x] Create Tahfidz progress RelationManagers/Infolists for students <!-- id: 59 -->
+    - [x] Create `ScholarshipResource` <!-- id: 66 -->
+    - [ ] Create `FeePartialApprovalResource` <!-- id: 67 -->
 
 - [ ] **Advanced Features & Logic**
     - [x] Implement User Roles & Permissions (Admin, Teacher, Student, Parent) <!-- id: 20 -->
@@ -62,6 +69,8 @@
     - [ ] Sync & manage Quran data via `laravel-quran` package <!-- id: 60 -->
     - [ ] Implement Tahfidz progress tracking workflows (targets, logs, analytics) <!-- id: 61 -->
     - [ ] Expose guardian/teacher tahfidz dashboards & notifications <!-- id: 62 -->
+    - [ ] Implement scholarships & discount application on fees <!-- id: 68 -->
+    - [ ] Implement partial-payment approvals flow (guardian requests, staff approval) <!-- id: 69 -->
 
 - [ ] **Code Quality & Refactoring**
     - [ ] Ensure `strict_types=1` in all files <!-- id: 23 -->
@@ -72,3 +81,4 @@
         - [x] `PaymentStatus` (Paid, Pending, Overdue) <!-- id: 40 -->
         - [x] `TransactionType` (Income, Expense) <!-- id: 41 -->
     - [ ] Review code against Filament best practices <!-- id: 25 -->
+    - [x] Display `created_at` column on all Filament tables <!-- id: 72 -->

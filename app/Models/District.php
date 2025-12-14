@@ -15,6 +15,10 @@ class District extends Model
 
     protected $table = 'districts';
 
+    protected $keyType = 'string';
+
+    public $incrementing = false;
+
     protected $hidden = [
         'regency_id',
     ];

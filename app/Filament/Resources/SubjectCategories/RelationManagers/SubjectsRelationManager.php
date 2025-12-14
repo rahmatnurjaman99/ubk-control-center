@@ -6,6 +6,7 @@ namespace App\Filament\Resources\SubjectCategories\RelationManagers;
 
 use App\Enums\SchoolLevel;
 use App\Models\Subject;
+use App\Support\AcademicYearResolver;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -34,6 +35,13 @@ class SubjectsRelationManager extends RelationManager
         return $schema
             ->columns(2)
             ->components([
+                Select::make('academic_year_id')
+                    ->label(__('filament.subjects.fields.academic_year'))
+                    ->relationship('academicYear', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->default(fn (): ?int => AcademicYearResolver::currentId())
+                    ->nullable(),
                 TextInput::make('code')
                     ->label(__('filament.subjects.fields.code'))
                     ->required()
@@ -55,12 +63,6 @@ class SubjectsRelationManager extends RelationManager
                     ->options(SchoolLevel::options())
                     ->native(false)
                     ->required(),
-                Select::make('academic_year_id')
-                    ->label(__('filament.subjects.fields.academic_year'))
-                    ->relationship('academicYear', 'name')
-                    ->searchable()
-                    ->preload()
-                    ->nullable(),
                 Toggle::make('is_compulsory')
                     ->label(__('filament.subjects.fields.is_compulsory'))
                     ->default(true),

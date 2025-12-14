@@ -9,6 +9,7 @@ use App\Enums\StaffRole;
 use App\Models\District;
 use App\Models\Province;
 use App\Models\Regency;
+use App\Models\Staff;
 use App\Models\Village;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
@@ -117,6 +118,7 @@ class StaffForm
             ->label(__('filament.staff.fields.staff_number'))
             ->maxLength(50)
             ->required()
+            ->default(fn (?Staff $record): string => $record?->staff_number ?? Staff::generateStaffNumber())
             ->unique(ignoreRecord: true);
     }
 
@@ -230,6 +232,7 @@ class StaffForm
             ->searchable()
             ->native(false)
             ->live()
+            ->partiallyRenderAfterStateUpdated()
             ->partiallyRenderComponentsAfterStateUpdated(['regency_id', 'district_id', 'village_id'])
             ->afterStateUpdated(function (Set $set): void {
                 $set('regency_id', null);

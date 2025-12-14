@@ -29,7 +29,7 @@ class PromotionApprovalResource extends Resource
 {
     protected static ?string $model = PromotionApproval::class;
 
-    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-clipboard-document-list';
+    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-check-badge';
 
     public static function table(Table $table): Table
     {
@@ -94,12 +94,12 @@ class PromotionApprovalResource extends Resource
                         fn (Builder $subQuery): Builder => $subQuery->where('is_current', true),
                     )),
             ])
-            ->actions([
+            ->recordActions([
                 Action::make('approve')
                     ->label(__('filament.promotion_approvals.actions.approve'))
                     ->icon('heroicon-o-check')
                     ->visible(fn (PromotionApproval $record): bool => $record->status === PromotionApprovalStatus::Pending)
-                    ->form(self::getApprovalFormComponents())
+                    ->schema(self::getApprovalFormComponents())
                     ->action(function (PromotionApproval $record, array $data, PromoteStudentAction $promoter): void {
                         DB::transaction(function () use ($record, $data, $promoter): void {
                             $record->update([
@@ -134,7 +134,7 @@ class PromotionApprovalResource extends Resource
                     ->icon('heroicon-o-x-mark')
                     ->color('danger')
                     ->visible(fn (PromotionApproval $record): bool => $record->status === PromotionApprovalStatus::Pending)
-                    ->form([
+                    ->schema([
                         Textarea::make('decision_notes')
                             ->label(__('filament.promotion_approvals.fields.decision_notes'))
                             ->required()

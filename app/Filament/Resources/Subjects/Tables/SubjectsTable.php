@@ -6,6 +6,7 @@ namespace App\Filament\Resources\Subjects\Tables;
 
 use App\Enums\SchoolLevel;
 use App\Models\Subject;
+use App\Support\Tables\Columns\CreatedAtColumn;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -36,6 +37,7 @@ class SubjectsTable
                 self::getIsCompulsoryColumn(),
                 self::getCreditHoursColumn(),
                 self::getClassroomsColumn(),
+                CreatedAtColumn::make(),
                 self::getUpdatedAtColumn(),
             ])
             ->defaultSort('name')

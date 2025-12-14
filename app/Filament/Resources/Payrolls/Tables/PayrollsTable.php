@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources\Payrolls\Tables;
 
 use App\Enums\PayrollStatus;
+use App\Support\Tables\Columns\CreatedAtColumn;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -89,6 +90,7 @@ class PayrollsTable
                     ))
                     ->alignRight()
                     ->sortable(),
+                CreatedAtColumn::make(),
             ])
             ->filters([
                 SelectFilter::make('status')

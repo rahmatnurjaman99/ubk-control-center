@@ -22,7 +22,7 @@ class FeeTemplateResource extends Resource
 {
     protected static ?string $model = FeeTemplate::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-squares-2x2';
 
     protected static ?string $recordTitleAttribute = 'title';
 

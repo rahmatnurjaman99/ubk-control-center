@@ -6,6 +6,7 @@ namespace App\Filament\Resources\Staff\Tables;
 
 use App\Enums\StaffRole;
 use App\Models\Staff;
+use App\Support\Tables\Columns\CreatedAtColumn;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -40,7 +41,10 @@ class StaffTable
                 self::getJoinedOnColumn(),
                 self::getPhoneColumn(),
                 self::getAddressColumn(),
-                self::getRegionColumn(),
+                self::getProvinceColumn(),
+                self::getRegencyColumn(),
+                self::getDistrictColumn(),
+                self::getVillageColumn(),
                 self::getEmergencyContactColumn(),
                 self::getCreatedAtColumn(),
             ])
@@ -48,6 +52,9 @@ class StaffTable
             ->filters([
                 self::getRoleFilter(),
                 self::getProvinceFilter(),
+                self::getRegencyFilter(),
+                self::getDistrictFilter(),
+                self::getVillageFilter(),
                 self::getJoinedOnFilter(),
                 self::getTrashedFilter(),
             ])
@@ -139,10 +146,31 @@ class StaffTable
             ->toggleable(isToggledHiddenByDefault: true);
     }
 
-    private static function getRegionColumn(): TextColumn
+    private static function getProvinceColumn(): TextColumn
+    {
+        return TextColumn::make('province.name')
+            ->label(__('filament.staff.fields.province'))
+            ->toggleable(isToggledHiddenByDefault: true);
+    }
+
+    private static function getRegencyColumn(): TextColumn
     {
         return TextColumn::make('regency.name')
             ->label(__('filament.staff.fields.regency'))
+            ->toggleable(isToggledHiddenByDefault: true);
+    }
+
+    private static function getDistrictColumn(): TextColumn
+    {
+        return TextColumn::make('district.name')
+            ->label(__('filament.staff.fields.district'))
+            ->toggleable(isToggledHiddenByDefault: true);
+    }
+
+    private static function getVillageColumn(): TextColumn
+    {
+        return TextColumn::make('village.name')
+            ->label(__('filament.staff.fields.village'))
             ->toggleable(isToggledHiddenByDefault: true);
     }
 
@@ -162,10 +190,8 @@ class StaffTable
 
     private static function getCreatedAtColumn(): TextColumn
     {
-        return TextColumn::make('created_at')
+        return CreatedAtColumn::make()
             ->label(__('filament.staff.table.created_at'))
-            ->dateTime()
-            ->sortable()
             ->toggleable(isToggledHiddenByDefault: true);
     }
 
@@ -182,6 +208,33 @@ class StaffTable
         return SelectFilter::make('province_id')
             ->label(__('filament.staff.fields.province'))
             ->relationship('province', 'name')
+            ->searchable()
+            ->native(false);
+    }
+
+    private static function getRegencyFilter(): SelectFilter
+    {
+        return SelectFilter::make('regency_id')
+            ->label(__('filament.staff.fields.regency'))
+            ->relationship('regency', 'name')
+            ->searchable()
+            ->native(false);
+    }
+
+    private static function getDistrictFilter(): SelectFilter
+    {
+        return SelectFilter::make('district_id')
+            ->label(__('filament.staff.fields.district'))
+            ->relationship('district', 'name')
+            ->searchable()
+            ->native(false);
+    }
+
+    private static function getVillageFilter(): SelectFilter
+    {
+        return SelectFilter::make('village_id')
+            ->label(__('filament.staff.fields.village'))
+            ->relationship('village', 'name')
             ->searchable()
             ->native(false);
     }

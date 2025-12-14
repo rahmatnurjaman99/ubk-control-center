@@ -72,5 +72,31 @@
             </tr>
         </table>
     </div>
+@if ($fee->scholarship)
+    <div class="section">
+        <h3>{{ __('filament.scholarships.model.singular') }}</h3>
+        <table>
+            <tr>
+                <th>{{ __('filament.scholarships.fields.name') }}</th>
+                <td>{{ $fee->scholarship?->name ?? '-' }}</td>
+            </tr>
+            <tr>
+                <th>{{ __('filament.scholarships.fields.discount') }}</th>
+                <td>
+                    @php
+                        $lines = [];
+                        if ($fee->scholarship_discount_percent !== null) {
+                            $lines[] = $fee->scholarship_discount_percent . '%';
+                        }
+                        if ((float) ($fee->scholarship_discount_amount ?? 0) > 0) {
+                            $lines[] = number_format((float) $fee->scholarship_discount_amount, 2) . ' ' . ($fee->currency ?? 'IDR');
+                        }
+                    @endphp
+                    {{ implode(' • ', $lines) }}
+                </td>
+            </tr>
+        </table>
+    </div>
+@endif
 </body>
 </html>

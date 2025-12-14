@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\RegistrationIntakes\Pages;
 
+use App\Enums\GradeLevel;
 use App\Enums\RegistrationStatus;
 use App\Enums\StudentStatus;
 use App\Enums\TransactionType;
@@ -14,6 +15,7 @@ use App\Models\Guardian;
 use App\Models\RegistrationIntake;
 use App\Models\Student;
 use App\Models\Transaction;
+use App\Support\Finance\PromotionFeeGenerator;
 use Filament\Actions;
 use Filament\Actions\DeleteAction;
 use Filament\Notifications\Notification;
@@ -21,7 +23,6 @@ use Filament\Resources\Pages\EditRecord;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Throwable;
 
@@ -70,7 +71,7 @@ class EditRegistrationIntake extends EditRecord
                     'guardian_id' => $guardian->id,
                     'academic_year_id' => $record->academic_year_id,
                     'classroom_id' => $classroom?->id,
-                    'student_number' => $this->generateStudentNumber(),
+                    'student_number' => Student::generateStudentNumber(),
                     'full_name' => $record->student_full_name,
                     'date_of_birth' => $record->student_date_of_birth,
                     'gender' => $record->student_gender,
@@ -89,6 +90,8 @@ class EditRegistrationIntake extends EditRecord
                         'notes' => __('filament.registration_intakes.actions.assignment_note', ['form' => $record->form_number]),
                     ]);
                 }
+
+                $this->generateInitialFees($student, $record, $classroom);
 
                 $this->createTransaction($record);
 
@@ -150,7 +153,7 @@ class EditRegistrationIntake extends EditRecord
         }
 
         return Guardian::create([
-            'guardian_number' => $this->generateGuardianNumber(),
+            'guardian_number' => Guardian::generateGuardianNumber(),
             'full_name' => $record->guardian_name,
             'relationship' => 'parent',
             'phone' => $record->guardian_phone,
@@ -158,24 +161,6 @@ class EditRegistrationIntake extends EditRecord
             'address' => $record->guardian_address,
             'legacy_reference' => $record->form_number,
         ]);
-    }
-
-    private function generateGuardianNumber(): string
-    {
-        do {
-            $number = 'GRD-' . Str::upper(Str::random(6));
-        } while (Guardian::withTrashed()->where('guardian_number', $number)->exists());
-
-        return $number;
-    }
-
-    private function generateStudentNumber(): string
-    {
-        do {
-            $number = 'STD-' . Str::upper(Str::random(6));
-        } while (Student::withTrashed()->where('student_number', $number)->exists());
-
-        return $number;
     }
 
     private function createTransaction(RegistrationIntake $record): void
@@ -208,6 +193,50 @@ class EditRegistrationIntake extends EditRecord
         $record->update([
             'payment_reference' => $transaction->reference,
         ]);
+    }
+
+    private function generateInitialFees(Student $student, RegistrationIntake $record, ?Classroom $classroom): void
+    {
+        $gradeLevel = $this->resolveGradeLevel($record, $classroom);
+        $academicYear = $record->academicYear ?? $record->academicYear()->first();
+
+        if ($gradeLevel === null || $academicYear === null) {
+            return;
+        }
+
+        app(PromotionFeeGenerator::class)->createForPromotion(
+            $student,
+            $gradeLevel,
+            $academicYear,
+        );
+    }
+
+    private function resolveGradeLevel(RegistrationIntake $record, ?Classroom $classroom): ?GradeLevel
+    {
+        $classroomGrade = $classroom?->grade_level;
+
+        if ($classroomGrade instanceof GradeLevel) {
+            return $classroomGrade;
+        }
+
+        if (is_string($classroomGrade) && $classroomGrade !== '') {
+            $grade = GradeLevel::tryFrom($classroomGrade);
+            if ($grade !== null) {
+                return $grade;
+            }
+        }
+
+        if ($record->target_grade_level !== null) {
+            if ($record->target_grade_level instanceof GradeLevel) {
+                return $record->target_grade_level;
+            }
+
+            if (is_string($record->target_grade_level) && $record->target_grade_level !== '') {
+                return GradeLevel::tryFrom($record->target_grade_level);
+            }
+        }
+
+        return null;
     }
 
     private function getReceiptUrl(): ?string

@@ -10,6 +10,7 @@ use App\Models\AcademicYear;
 use App\Models\Classroom;
 use App\Models\Student;
 use App\Models\StudentAttendance;
+use App\Support\AcademicYearResolver;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Forms\Components\DatePicker;
@@ -38,16 +39,17 @@ class ListStudentAttendances extends ListRecords
             ->label(__('filament.student_attendances.actions.generate'))
             ->icon(Heroicon::OutlinedClipboardDocumentList)
             ->schema([
-                DatePicker::make('recorded_on')
-                    ->label(__('filament.student_attendances.fields.recorded_on'))
-                    ->native(false)
-                    ->default(now())
-                    ->required(),
                 Select::make('academic_year_id')
                     ->label(__('filament.student_attendances.fields.academic_year'))
                     ->options(fn(): array => AcademicYear::query()->orderByDesc('starts_on')->pluck('name', 'id')->all())
                     ->searchable()
                     ->preload()
+                    ->default(fn (): ?int => AcademicYearResolver::currentId())
+                    ->required(),
+                DatePicker::make('recorded_on')
+                    ->label(__('filament.student_attendances.fields.recorded_on'))
+                    ->native(false)
+                    ->default(now())
                     ->required(),
                 Select::make('classroom_id')
                     ->label(__('filament.student_attendances.fields.classroom'))

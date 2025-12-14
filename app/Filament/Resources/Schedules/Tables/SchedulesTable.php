@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources\Schedules\Tables;
 
 use App\Filament\Resources\Schedules\ScheduleResource;
+use App\Support\Tables\Columns\CreatedAtColumn;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -52,6 +53,7 @@ class SchedulesTable
                 IconColumn::make('is_all_day')
                     ->label(__('filament.schedules.table.is_all_day'))
                     ->boolean(),
+                CreatedAtColumn::make(),
             ])
             ->filters([
                 SelectFilter::make('subject_id')

@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\Transactions\Tables;
 
+use App\Models\Fee;
+use App\Models\Transaction;
 use App\Enums\PaymentStatus;
 use App\Enums\TransactionType;
+use App\Support\Tables\Columns\CreatedAtColumn;
 use Filament\Actions\Action as TableAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -48,6 +51,11 @@ class TransactionsTable
                     ->money('IDR')
                     ->alignRight()
                     ->sortable(),
+                TextColumn::make('scholarship_discounts')
+                    ->label(__('filament.transactions.table.scholarships'))
+                    ->state(fn (Transaction $record): array => self::formatScholarshipState($record))
+                    ->listWithLineBreaks()
+                    ->toggleable(),
                 TextColumn::make('payment_status')
                     ->label(__('filament.transactions.table.payment_status'))
                     ->badge()
@@ -67,6 +75,7 @@ class TransactionsTable
                     ->label(__('filament.transactions.fields.academic_year'))
                     ->sortable()
                     ->toggleable(),
+                CreatedAtColumn::make(),
                 TextColumn::make('updated_at')
                     ->label(__('filament.transactions.table.updated_at'))
                     ->since()
@@ -102,5 +111,30 @@ class TransactionsTable
                     RestoreBulkAction::make(),
                 ]),
             ]);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private static function formatScholarshipState(Transaction $transaction): array
+    {
+        return $transaction->scholarshipFees()
+            ->map(fn (Fee $fee): ?string => self::formatScholarshipLine($fee))
+            ->filter()
+            ->values()
+            ->all();
+    }
+
+    private static function formatScholarshipLine(Fee $fee): ?string
+    {
+        $discount = $fee->formattedScholarshipDiscount();
+
+        if ($discount === null) {
+            return null;
+        }
+
+        $title = $fee->title ?? __('filament.fees.model.singular');
+
+        return sprintf('%s — %s', $title, $discount);
     }
 }

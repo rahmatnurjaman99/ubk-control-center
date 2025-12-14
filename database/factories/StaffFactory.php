@@ -21,7 +21,7 @@ class StaffFactory extends Factory
 
         return [
             'user_id' => User::factory(),
-            'staff_number' => fake()->unique()->regexify('STF-[A-Z0-9]{5}'),
+            'staff_number' => Staff::generateStaffNumber(),
             'staff_name' => fake()->name(),
             'role' => fake()->randomElement(StaffRole::cases()),
             'joined_on' => $joined->format('Y-m-d'),

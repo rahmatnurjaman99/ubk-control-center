@@ -17,7 +17,7 @@ class GuardianFactory extends Factory
     {
         return [
             'user_id' => User::factory(),
-            'guardian_number' => fake()->unique()->regexify('GRD-[A-Z0-9]{6}'),
+            'guardian_number' => Guardian::generateGuardianNumber(),
             'full_name' => fake()->name(),
             'relationship' => fake()->randomElement(['parent', 'uncle', 'aunt', 'guardian']),
             'phone' => fake()->phoneNumber(),

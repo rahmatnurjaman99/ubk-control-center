@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources\SalaryStructures\Schemas;
 
 use App\Models\SalaryStructure;
+use App\Support\AcademicYearResolver;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
@@ -35,6 +36,14 @@ class SalaryStructureForm
         return Section::make(__('filament.salary_structures.sections.general'))
             ->columns(2)
             ->schema([
+                Select::make('academic_year_id')
+                    ->label(__('filament.salary_structures.fields.academic_year'))
+                    ->relationship('academicYear', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->native(false)
+                    ->default(fn (): ?int => AcademicYearResolver::currentId())
+                    ->nullable(),
                 Select::make('staff_id')
                     ->label(__('filament.salary_structures.fields.staff'))
                     ->relationship('staff', 'staff_name')
@@ -42,13 +51,6 @@ class SalaryStructureForm
                     ->preload()
                     ->required()
                     ->native(false),
-                Select::make('academic_year_id')
-                    ->label(__('filament.salary_structures.fields.academic_year'))
-                    ->relationship('academicYear', 'name')
-                    ->searchable()
-                    ->preload()
-                    ->native(false)
-                    ->nullable(),
                 TextInput::make('title')
                     ->label(__('filament.salary_structures.fields.title'))
                     ->maxLength(255)

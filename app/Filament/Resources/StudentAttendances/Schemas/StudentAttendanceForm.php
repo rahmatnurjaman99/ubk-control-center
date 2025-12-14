@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources\StudentAttendances\Schemas;
 
 use App\Enums\AttendanceStatus;
+use App\Support\AcademicYearResolver;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Hidden;
@@ -31,15 +32,16 @@ class StudentAttendanceForm
         return Section::make(__('filament.student_attendances.sections.details'))
             ->columns(2)
             ->schema([
-                Select::make('student_id')
-                    ->label(__('filament.student_attendances.fields.student'))
-                    ->relationship('student', 'full_name')
-                    ->searchable()
-                    ->preload()
-                    ->required(),
                 Select::make('academic_year_id')
                     ->label(__('filament.student_attendances.fields.academic_year'))
                     ->relationship('academicYear', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->default(fn (): ?int => AcademicYearResolver::currentId())
+                    ->required(),
+                Select::make('student_id')
+                    ->label(__('filament.student_attendances.fields.student'))
+                    ->relationship('student', 'full_name')
                     ->searchable()
                     ->preload()
                     ->required(),

@@ -35,7 +35,10 @@ class SampleDataSeeder extends Seeder
 
     public function run(): void
     {
-        $this->call(DefaultDataSeeder::class);
+        // $this->call([
+        //     IndoRegionSeeder::class,
+        //     DefaultDataSeeder::class,
+        // ]);
 
         $currentYear = AcademicYear::query()->where('is_current', true)->first();
         $nextYear = AcademicYear::query()

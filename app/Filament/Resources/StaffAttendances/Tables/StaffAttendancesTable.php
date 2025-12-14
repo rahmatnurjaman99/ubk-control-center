@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources\StaffAttendances\Tables;
 
 use App\Enums\AttendanceStatus;
+use App\Support\Tables\Columns\CreatedAtColumn;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -57,6 +58,7 @@ class StaffAttendancesTable
                     ->placeholder(__('filament.staff_attendances.table.notes_placeholder'))
                     ->rules(['nullable', 'string', 'max:1000'])
                     ->extraInputAttributes(['maxlength' => 1000]),
+                CreatedAtColumn::make(),
             ])
             ->filters([
                 SelectFilter::make('status')

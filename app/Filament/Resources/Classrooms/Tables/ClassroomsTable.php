@@ -6,6 +6,7 @@ namespace App\Filament\Resources\Classrooms\Tables;
 
 use App\Enums\GradeLevel;
 use App\Enums\SchoolLevel;
+use App\Support\Tables\Columns\CreatedAtColumn;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -30,6 +31,7 @@ class ClassroomsTable
                 self::getGradeLevelColumn(),
                 self::getCapacityColumn(),
                 self::getStudentsCountColumn(),
+                CreatedAtColumn::make(),
                 self::getUpdatedAtColumn(),
             ])
             ->defaultSort('name')

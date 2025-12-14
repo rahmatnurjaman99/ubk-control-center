@@ -29,6 +29,7 @@ it('creates promotion fees based on active templates', function (): void {
     ]);
 
     $template = FeeTemplate::factory()->create([
+        'academic_year_id' => $academicYear->id,
         'grade_level' => GradeLevel::Sd1,
         'amount' => 1_250_000,
         'due_in_days' => 10,

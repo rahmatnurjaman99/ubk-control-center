@@ -14,7 +14,6 @@ use Filament\Actions\Imports\ImportColumn;
 use Filament\Actions\Imports\Importer;
 use Filament\Actions\Imports\Models\Import;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Throwable;
 
@@ -296,20 +295,12 @@ class LegacyStudentImporter extends Importer
 
     private function generateGuardianNumber(): string
     {
-        do {
-            $number = 'GRD-' . Str::upper(Str::random(6));
-        } while (Guardian::withTrashed()->where('guardian_number', $number)->exists());
-
-        return $number;
+        return Guardian::generateGuardianNumber();
     }
 
     private function generateStudentNumber(): string
     {
-        do {
-            $number = 'STD-' . Str::upper(Str::random(6));
-        } while (Student::withTrashed()->where('student_number', $number)->exists());
-
-        return $number;
+        return Student::generateStudentNumber();
     }
 
     private static function normalizeStatus(?string $state): ?string

@@ -13,14 +13,14 @@ class ReceiptController
     public function transaction(Transaction $transaction): View
     {
         return view('receipts.transaction', [
-            'transaction' => $transaction->load(['academicYear', 'recorder']),
+            'transaction' => $transaction->load(['academicYear', 'recorder', 'fees.scholarship']),
         ]);
     }
 
     public function fee(Fee $fee): View
     {
         return view('receipts.fee', [
-            'fee' => $fee->load(['student.guardian', 'academicYear']),
+            'fee' => $fee->load(['student.guardian', 'academicYear', 'scholarship']),
         ]);
     }
 }

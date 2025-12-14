@@ -6,6 +6,7 @@ namespace App\Filament\Resources\FeeTemplates\Schemas;
 
 use App\Enums\FeeType;
 use App\Enums\GradeLevel;
+use App\Support\AcademicYearResolver;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -29,6 +30,14 @@ class FeeTemplateForm
         return Section::make(__('filament.fee_templates.sections.details'))
             ->columns(2)
             ->schema([
+                Select::make('academic_year_id')
+                    ->label(__('filament.fee_templates.fields.academic_year'))
+                    ->relationship('academicYear', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->native(false)
+                    ->default(fn (): ?int => AcademicYearResolver::currentId())
+                    ->required(),
                 TextInput::make('title')
                     ->label(__('filament.fee_templates.fields.title'))
                     ->required()

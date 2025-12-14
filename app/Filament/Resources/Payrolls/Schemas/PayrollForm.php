@@ -7,6 +7,7 @@ namespace App\Filament\Resources\Payrolls\Schemas;
 use App\Enums\PayrollStatus;
 use App\Models\Payroll;
 use App\Models\Staff;
+use App\Support\AcademicYearResolver;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -36,6 +37,14 @@ class PayrollForm
         return Section::make(__('filament.payrolls.sections.details'))
             ->columns(2)
             ->schema([
+                Select::make('academic_year_id')
+                    ->label(__('filament.payrolls.fields.academic_year'))
+                    ->relationship('academicYear', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->native(false)
+                    ->default(fn (): ?int => AcademicYearResolver::currentId())
+                    ->nullable(),
                 TextInput::make('reference')
                     ->label(__('filament.payrolls.fields.reference'))
                     ->default(fn (): string => Payroll::generateReference())
@@ -53,13 +62,6 @@ class PayrollForm
                     ->default(PayrollStatus::Draft->value)
                     ->native(false)
                     ->required(),
-                Select::make('academic_year_id')
-                    ->label(__('filament.payrolls.fields.academic_year'))
-                    ->relationship('academicYear', 'name')
-                    ->searchable()
-                    ->preload()
-                    ->native(false)
-                    ->nullable(),
                 TextInput::make('currency')
                     ->label(__('filament.payrolls.fields.currency'))
                     ->maxLength(3)

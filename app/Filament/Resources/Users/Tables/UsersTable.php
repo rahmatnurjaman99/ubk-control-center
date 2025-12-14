@@ -6,6 +6,7 @@ namespace App\Filament\Resources\Users\Tables;
 
 use App\Enums\SystemRole;
 use App\Enums\UserStatus;
+use App\Support\Tables\Columns\CreatedAtColumn;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -95,9 +96,7 @@ class UsersTable
 
     private static function getCreatedAtColumn(): TextColumn
     {
-        return TextColumn::make('created_at')
-            ->dateTime()
-            ->sortable()
+        return CreatedAtColumn::make()
             ->toggleable(isToggledHiddenByDefault: true);
     }
 

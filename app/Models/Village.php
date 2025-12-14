@@ -14,6 +14,10 @@ class Village extends Model
 
     protected $table = 'villages';
 
+    protected $keyType = 'string';
+
+    public $incrementing = false;
+
     protected $hidden = [
         'district_id',
     ];

@@ -72,5 +72,36 @@
             </tr>
         </table>
     </div>
+@if ($transaction->fees->contains(fn ($fee) => $fee->scholarship))
+    <div class="section">
+        <h3>{{ __('filament.transactions.sections.scholarships') }}</h3>
+        <table>
+            <tr>
+                <th>{{ __('filament.fees.model.singular') }}</th>
+                <th>{{ __('filament.scholarships.model.singular') }}</th>
+                <th>{{ __('filament.scholarships.fields.discount') }}</th>
+            </tr>
+            @foreach ($transaction->fees as $fee)
+                @continue(! $fee->scholarship)
+                <tr>
+                    <td>{{ $fee->title }}</td>
+                    <td>{{ $fee->scholarship?->name ?? '-' }}</td>
+                    <td>
+                        @php
+                            $lines = [];
+                            if ($fee->scholarship_discount_percent !== null) {
+                                $lines[] = $fee->scholarship_discount_percent . '%';
+                            }
+                            if ((float) ($fee->scholarship_discount_amount ?? 0) > 0) {
+                                $lines[] = number_format((float) $fee->scholarship_discount_amount, 2) . ' ' . ($fee->currency ?? 'IDR');
+                            }
+                        @endphp
+                        {{ implode(' • ', $lines) }}
+                    </td>
+                </tr>
+            @endforeach
+        </table>
+    </div>
+@endif
 </body>
 </html>

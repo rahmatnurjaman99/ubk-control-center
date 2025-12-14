@@ -14,6 +14,10 @@ class Province extends Model
 
     protected $table = 'provinces';
 
+    protected $keyType = 'string';
+
+    public $incrementing = false;
+
     public $timestamps = false;
 
     public function regencies(): HasMany

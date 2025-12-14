@@ -6,9 +6,12 @@ namespace App\Filament\Resources\Transactions\Schemas;
 
 use App\Enums\PaymentStatus;
 use App\Enums\TransactionType;
+use App\Models\Fee;
 use App\Models\Transaction as TransactionModel;
+use App\Support\AcademicYearResolver;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -23,6 +26,7 @@ class TransactionForm
             ->components([
                 self::getDetailsSection(),
                 self::getPaymentSection(),
+                self::getScholarshipSection(),
                 self::getMetaSection(),
             ])
             ->columns(1);
@@ -33,6 +37,14 @@ class TransactionForm
         return Section::make(__('filament.transactions.fields.reference'))
             ->columns(2)
             ->schema([
+                Select::make('academic_year_id')
+                    ->label(__('filament.transactions.fields.academic_year'))
+                    ->relationship('academicYear', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->native(false)
+                    ->default(fn (): ?int => AcademicYearResolver::currentId())
+                    ->nullable(),
                 TextInput::make('reference')
                     ->label(__('filament.transactions.fields.reference'))
                     ->default(fn (): string => TransactionModel::generateReference())
@@ -89,13 +101,6 @@ class TransactionForm
                     ->label(__('filament.transactions.fields.paid_at'))
                     ->seconds(false)
                     ->native(false),
-                Select::make('academic_year_id')
-                    ->label(__('filament.transactions.fields.academic_year'))
-                    ->relationship('academicYear', 'name')
-                    ->searchable()
-                    ->preload()
-                    ->native(false)
-                    ->nullable(),
                 Select::make('recorded_by')
                     ->label(__('filament.transactions.fields.recorded_by'))
                     ->relationship('recorder', 'name')
@@ -105,6 +110,18 @@ class TransactionForm
                     ->default(fn (): ?int => auth()->id())
                     ->disabled()
                     ->dehydrated(),
+            ]);
+    }
+
+    private static function getScholarshipSection(): Section
+    {
+        return Section::make(__('filament.transactions.fields.scholarships'))
+            ->visible(fn (?TransactionModel $record): bool => $record?->scholarshipFees()->isNotEmpty() ?? false)
+            ->schema([
+                Placeholder::make('scholarship_summary')
+                    ->label(__('filament.transactions.fields.scholarships'))
+                    ->content(fn (?TransactionModel $record): string => self::formatScholarshipSummary($record))
+                    ->columnSpanFull(),
             ]);
     }
 
@@ -121,5 +138,32 @@ class TransactionForm
                     ->rows(4)
                     ->columnSpanFull(),
             ]);
+    }
+
+    private static function formatScholarshipSummary(?TransactionModel $record): string
+    {
+        if (! $record instanceof TransactionModel) {
+            return '';
+        }
+
+        $summaries = $record->scholarshipFees()
+            ->map(fn (Fee $fee): ?string => self::formatScholarshipLine($fee))
+            ->filter()
+            ->values();
+
+        return $summaries->implode(PHP_EOL);
+    }
+
+    private static function formatScholarshipLine(Fee $fee): ?string
+    {
+        $discount = $fee->formattedScholarshipDiscount();
+
+        if ($discount === null) {
+            return null;
+        }
+
+        $title = $fee->title ?? __('filament.fees.model.singular');
+
+        return sprintf('%s — %s', $title, $discount);
     }
 }

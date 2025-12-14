@@ -9,8 +9,10 @@ use App\Enums\TransactionType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 class Transaction extends Model
@@ -79,6 +81,11 @@ class Transaction extends Model
         return $this->belongsTo(AcademicYear::class);
     }
 
+    public function fees(): HasMany
+    {
+        return $this->hasMany(Fee::class);
+    }
+
     public function source(): MorphTo
     {
         return $this->morphTo();
@@ -87,5 +94,20 @@ class Transaction extends Model
     public function recorder(): BelongsTo
     {
         return $this->belongsTo(User::class, 'recorded_by');
+    }
+
+    /**
+     * @return Collection<int, Fee>
+     */
+    public function scholarshipFees(): Collection
+    {
+        $this->loadMissing('fees.scholarship');
+
+        return $this->fees->filter(static fn (Fee $fee): bool => $fee->hasScholarship());
+    }
+
+    public function hasScholarshipDiscounts(): bool
+    {
+        return $this->scholarshipFees()->isNotEmpty();
     }
 }

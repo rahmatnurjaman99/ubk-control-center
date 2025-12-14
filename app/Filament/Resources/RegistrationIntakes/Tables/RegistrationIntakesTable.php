@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources\RegistrationIntakes\Tables;
 
 use App\Enums\RegistrationStatus;
+use App\Support\Tables\Columns\CreatedAtColumn;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -51,12 +52,7 @@ class RegistrationIntakesTable
                     ->date()
                     ->sortable()
                     ->placeholder('-'),
-                TextColumn::make('created_at')
-                    ->label(__('filament.registration_intakes.table.created_at'))
-                    ->dateTime()
-                    ->since()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                CreatedAtColumn::make(),
             ])
             ->filters([
                 SelectFilter::make('status')

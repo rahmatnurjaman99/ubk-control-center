@@ -29,7 +29,7 @@ return [
      * equran.id: https://equran.nos.wjv-1.neo.id/audio-partial/Misyari-Rasyid-Al-Afasi/
      * other source: https://www.versebyversequran.com/
      */
-    'audio_base_uri' => env('QURAN_AUDIO_BASE_URI', 'https://media.qurankemenag.net/audio/Abu_Bakr_Ash-Shaatree_aac64/'),
+    'audio_base_uri' => env('QURAN_AUDIO_BASE_URI', 'https://equran.nos.wjv-1.neo.id/audio-partial/Misyari-Rasyid-Al-Afasi/'),
 
     /**
      * Quran api connect and request timeout

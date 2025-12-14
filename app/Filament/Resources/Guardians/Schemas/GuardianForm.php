@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\Guardians\Schemas;
 
+use App\Models\Guardian;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -46,6 +47,7 @@ class GuardianForm
             ->required()
             ->unique(ignoreRecord: true)
             ->maxLength(50)
+            ->default(fn (?Guardian $record): string => $record?->guardian_number ?? Guardian::generateGuardianNumber())
             ->disabled();
     }
 

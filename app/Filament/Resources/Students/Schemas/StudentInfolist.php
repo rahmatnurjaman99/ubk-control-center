@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Filament\Resources\Students\Schemas;
 
 use App\Enums\GradeLevel;
+use App\Enums\ScholarshipType;
 use App\Enums\StudentStatus;
 use App\Models\Student;
+use App\Models\Scholarship;
 use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
@@ -22,6 +24,7 @@ class StudentInfolist
             ->components([
                 self::getProfileSection(),
                 self::getGuardianSection(),
+                self::getScholarshipsSection(),
                 self::getRegistrationDocumentsSection(),
                 self::getDocumentsSection(),
                 self::getMetaSection(),
@@ -134,6 +137,49 @@ class StudentInfolist
             ->schema([
                 RepeatableEntry::make('documents')
                     ->schema(self::getDocumentEntries())
+                    ->columns(2),
+            ]);
+    }
+
+    private static function getScholarshipsSection(): Section
+    {
+        return Section::make(__('filament.scholarships.sections.student_assignments'))
+            ->visible(fn (?Student $record): bool => $record?->scholarships?->isNotEmpty() ?? false)
+            ->schema([
+                RepeatableEntry::make('scholarships')
+                    ->schema([
+                        TextEntry::make('name')
+                            ->label(__('filament.scholarships.fields.name'))
+                            ->badge()
+                            ->color('info'),
+                        TextEntry::make('type')
+                            ->label(__('filament.scholarships.fields.type'))
+                            ->badge()
+                            ->formatStateUsing(fn ($state): ?string => $state instanceof ScholarshipType ? $state->label() : $state),
+                        TextEntry::make('amount')
+                            ->label(__('filament.scholarships.fields.amount'))
+                            ->formatStateUsing(function ($state, ?Scholarship $record): ?string {
+                                if (! $record) {
+                                    return null;
+                                }
+
+                                return $record->type === ScholarshipType::Percentage
+                                    ? number_format((float) $record->amount, 0) . '%'
+                                    : 'IDR ' . number_format((float) $record->amount, 0);
+                            }),
+                        TextEntry::make('pivot.effective_from')
+                            ->label(__('filament.scholarships.fields.effective_from'))
+                            ->date()
+                            ->placeholder('—'),
+                        TextEntry::make('pivot.effective_until')
+                            ->label(__('filament.scholarships.fields.effective_until'))
+                            ->date()
+                            ->placeholder('—'),
+                        TextEntry::make('pivot.notes')
+                            ->label(__('filament.scholarships.fields.notes'))
+                            ->columnSpanFull()
+                            ->placeholder('—'),
+                    ])
                     ->columns(2),
             ]);
     }

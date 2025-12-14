@@ -60,13 +60,6 @@ class SubjectCategoryResource extends Resource
         return __('filament.subject_categories.model.plural');
     }
 
-    public static function getNavigationBadge(): ?string
-    {
-        $count = SubjectCategory::query()->count();
-
-        return $count > 0 ? (string) $count : null;
-    }
-
     public static function getPages(): array
     {
         return [

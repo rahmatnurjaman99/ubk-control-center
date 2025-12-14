@@ -6,6 +6,8 @@ namespace App\Filament\Resources\Fees\Tables;
 
 use App\Enums\FeeStatus;
 use App\Enums\FeeType;
+use App\Models\Fee;
+use App\Support\Tables\Columns\CreatedAtColumn;
 use Filament\Actions\Action as TableAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -24,7 +26,7 @@ class FeesTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->defaultSort('due_date')
+            ->defaultSort('created_at', 'desc')
             ->columns([
                 TextColumn::make('reference')
                     ->label(__('filament.fees.table.reference'))
@@ -44,8 +46,23 @@ class FeesTable
                     ->formatStateUsing(fn (?FeeType $state): ?string => $state?->getLabel())
                     ->color(fn (?FeeType $state): ?string => $state?->getColor())
                     ->sortable(),
-                TextColumn::make('amount')
+                TextColumn::make('metadata->base_amount')
                     ->label(__('filament.fees.table.amount'))
+                    ->state(fn (Fee $record): float => (float) (
+                        $record->metadata['base_amount']
+                            ?? ((float) $record->amount + (float) ($record->scholarship_discount_amount ?? 0))
+                    ))
+                    ->money('IDR')
+                    ->alignRight()
+                    ->sortable(),
+                TextColumn::make('scholarship_discount_amount')
+                    ->label(__('filament.fees.table.discount'))
+                    ->state(fn (Fee $record): float => (float) ($record->scholarship_discount_amount ?? 0))
+                    ->money('IDR')
+                    ->alignRight()
+                    ->sortable(),
+                TextColumn::make('amount')
+                    ->label(__('filament.fees.table.after_discount'))
                     ->money('IDR')
                     ->alignRight()
                     ->sortable(),
@@ -62,6 +79,13 @@ class FeesTable
                     ->alignRight()
                     ->sortable()
                     ->toggleable(),
+                TextColumn::make('scholarship_summary')
+                    ->label(__('filament.fees.table.scholarship'))
+                    ->state(fn (Fee $record): ?string => $record->formattedScholarshipDiscount())
+                    ->badge()
+                    ->color('info')
+                    ->toggleable()
+                    ->placeholder('-'),
                 TextColumn::make('status')
                     ->label(__('filament.fees.table.status'))
                     ->badge()
@@ -78,6 +102,7 @@ class FeesTable
                     ->date()
                     ->sortable()
                     ->placeholder('-'),
+                CreatedAtColumn::make(),
             ])
             ->filters([
                 SelectFilter::make('type')

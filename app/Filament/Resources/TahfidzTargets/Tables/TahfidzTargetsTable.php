@@ -6,6 +6,7 @@ namespace App\Filament\Resources\TahfidzTargets\Tables;
 
 use App\Enums\TahfidzTargetStatus;
 use App\Support\Quran\QuranOptions;
+use App\Support\Tables\Columns\CreatedAtColumn;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -92,6 +93,7 @@ class TahfidzTargetsTable
                 ->counts('logs')
                 ->label(__('filament.tahfidz_targets.table.logs_count'))
                 ->alignCenter(),
+            CreatedAtColumn::make(),
         ]));
     }
 

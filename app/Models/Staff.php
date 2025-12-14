@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class Staff extends Model
 {
@@ -152,5 +153,16 @@ class Staff extends Model
         };
 
         return "https://ui-avatars.com/api/?name={$name}&background={$background}&color=FFFFFF&size=256";
+    }
+
+    public static function generateStaffNumber(): string
+    {
+        $prefix = 'STF-' . now()->format('Ym');
+
+        do {
+            $number = $prefix . '-' . Str::upper(Str::random(4));
+        } while (self::withTrashed()->where('staff_number', $number)->exists());
+
+        return $number;
     }
 }

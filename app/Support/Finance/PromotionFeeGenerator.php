@@ -10,6 +10,7 @@ use App\Enums\GradeLevel;
 use App\Models\AcademicYear;
 use App\Models\Fee;
 use App\Models\FeeTemplate;
+use App\Models\Scholarship;
 use App\Models\Student;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Support\Carbon;
@@ -43,8 +44,20 @@ class PromotionFeeGenerator
         $templates = FeeTemplate::query()
             ->active()
             ->where('grade_level', $gradeLevel->value)
+            ->where('academic_year_id', $academicYear->id)
             ->orderBy('title')
             ->get();
+
+        if ($templates->isEmpty()) {
+            $templates = FeeTemplate::query()
+                ->active()
+                ->where('grade_level', $gradeLevel->value)
+                ->whereNull('academic_year_id')
+                ->orderBy('title')
+                ->get();
+        }
+
+        $scholarship = $this->resolveScholarship($student, $academicYear);
 
         $fees = $templates
             ->map(fn (FeeTemplate $template): ?Fee => $this->createFromTemplate(
@@ -54,6 +67,7 @@ class PromotionFeeGenerator
                 template: $template,
                 status: $status,
                 defaultDueInDays: $defaultDueInDays,
+                scholarship: $scholarship,
             ))
             ->filter()
             ->values()
@@ -76,6 +90,11 @@ class PromotionFeeGenerator
             return [$existingFee];
         }
 
+        [$finalAmount, $discountAmount, $discountPercent] = $this->calculateScholarshipAdjustments(
+            amount: (float) $amount,
+            scholarship: $scholarship,
+        );
+
         $fallbackFee = Fee::query()->create([
             'student_id' => $student->id,
             'academic_year_id' => $academicYear->id,
@@ -84,13 +103,18 @@ class PromotionFeeGenerator
                 'year' => $academicYear->name,
             ]),
             'type' => $type,
-            'amount' => $amount,
+            'amount' => $finalAmount,
             'currency' => $currency,
             'due_date' => $this->resolveDueDate($academicYear, $defaultDueInDays)->toDateString(),
             'status' => $status,
             'description' => __('filament.fees.promotion.description', [
                 'year' => $academicYear->name,
             ]),
+            'allow_partial_payment' => $settings['allow_partial_payment'] ?? false,
+            'requires_partial_approval' => $settings['require_partial_approval'] ?? false,
+            'scholarship_id' => $scholarship?->id,
+            'scholarship_discount_amount' => $discountAmount,
+            'scholarship_discount_percent' => $discountPercent,
             'metadata' => [
                 'source' => 'promotion',
                 'grade_level' => $gradeLevel->value,
@@ -107,6 +131,7 @@ class PromotionFeeGenerator
         FeeTemplate $template,
         FeeStatus $status,
         int $defaultDueInDays,
+        ?Scholarship $scholarship,
     ): ?Fee {
         $existing = Fee::query()
             ->where('student_id', $student->id)
@@ -119,17 +144,29 @@ class PromotionFeeGenerator
         }
 
         $dueDate = $this->resolveDueDate($academicYear, $template->due_in_days ?? $defaultDueInDays);
+        $allowPartial = (bool) $template->allow_partial_payment;
+        $requireApproval = $allowPartial && (bool) $template->require_partial_approval;
+
+        [$finalAmount, $discountAmount, $discountPercent] = $this->calculateScholarshipAdjustments(
+            amount: (float) $template->amount,
+            scholarship: $scholarship,
+        );
 
         return Fee::query()->create([
             'student_id' => $student->id,
             'academic_year_id' => $academicYear->id,
             'title' => $template->title,
             'type' => $template->type ?? FeeType::Tuition,
-            'amount' => $template->amount,
+            'amount' => $finalAmount,
             'currency' => $template->currency,
             'due_date' => $dueDate->toDateString(),
             'status' => $status,
             'description' => $template->description,
+            'allow_partial_payment' => $allowPartial,
+            'requires_partial_approval' => $requireApproval,
+            'scholarship_id' => $scholarship?->id,
+            'scholarship_discount_amount' => $discountAmount,
+            'scholarship_discount_percent' => $discountPercent,
             'metadata' => [
                 'source' => 'promotion',
                 'grade_level' => $gradeLevel->value,
@@ -159,5 +196,51 @@ class PromotionFeeGenerator
             ->where('metadata->grade_level', $gradeLevel->value)
             ->whereNull('metadata->template_id')
             ->first();
+    }
+
+    private function resolveScholarship(Student $student, AcademicYear $academicYear): ?Scholarship
+    {
+        return $student->scholarships()
+            ->wherePivot('is_active', true)
+            ->where(function ($query) use ($academicYear): void {
+                if ($academicYear->starts_on !== null) {
+                    $query->whereNull('effective_from')
+                        ->orWhere('effective_from', '<=', $academicYear->starts_on);
+                }
+            })
+            ->where(function ($query) use ($academicYear): void {
+                if ($academicYear->ends_on !== null) {
+                    $query->whereNull('effective_until')
+                        ->orWhere('effective_until', '>=', $academicYear->ends_on);
+                }
+            })
+            ->orderByDesc('scholarship_student.effective_from')
+            ->first();
+    }
+
+    /**
+     * @return array{0: float, 1: float, 2: ?int}
+     */
+    private function calculateScholarshipAdjustments(float $amount, ?Scholarship $scholarship): array
+    {
+        if ($scholarship === null || $amount <= 0) {
+            return [$amount, 0.0, null];
+        }
+
+        $discount = 0.0;
+        $percent = null;
+        $value = (float) $scholarship->amount;
+
+        if ($scholarship->type === 'percentage') {
+            $percent = (int) round(min(100, max(0, $value)));
+            $discount = ($amount * $percent) / 100;
+        } else {
+            $discount = min($amount, $value);
+            $percent = $amount > 0 ? (int) round(($discount / $amount) * 100) : null;
+        }
+
+        $adjusted = max($amount - $discount, 0);
+
+        return [$adjusted, $discount, $percent];
     }
 }

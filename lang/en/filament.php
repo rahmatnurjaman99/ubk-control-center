@@ -13,6 +13,10 @@ return [
         'attendance' => 'Attendance',
     ],
 
+    'common' => [
+        'created_at' => 'Created at',
+    ],
+
     'school_levels' => [
         'paud' => 'PAUD',
         'tk' => 'Kindergarten',
@@ -170,6 +174,7 @@ return [
             'document_type' => 'Document type',
             'document_file' => 'File',
             'document_notes' => 'Notes',
+            'scholarships' => 'Scholarships',
         ],
         'table' => [
             'created_at' => 'Created at',
@@ -350,6 +355,7 @@ return [
     'classroom_assignments' => [
         'fields' => [
             'student' => 'Student',
+            'classroom' => 'Classroom',
             'academic_year' => 'Academic year',
             'classroom' => 'Classroom',
             'grade_level' => 'Grade',
@@ -439,6 +445,7 @@ return [
             'notes' => 'Notes',
             'source' => 'Linked record',
             'recorded_by' => 'Recorded by',
+            'scholarships' => 'Scholarship discounts',
         ],
         'table' => [
             'reference' => 'Reference',
@@ -446,6 +453,7 @@ return [
             'type' => 'Type',
             'category' => 'Category',
             'amount' => 'Amount',
+            'scholarships' => 'Scholarships',
             'payment_status' => 'Payment',
             'paid_at' => 'Paid at',
             'recorded_by' => 'Recorded by',
@@ -456,6 +464,9 @@ return [
             'payment_status' => 'Payment status',
             'academic_year' => 'Academic year',
             'trashed' => 'Deleted records',
+        ],
+        'sections' => [
+            'scholarships' => 'Scholarship discounts',
         ],
     ],
 
@@ -472,6 +483,7 @@ return [
             'title' => 'Title',
             'type' => 'Fee type',
             'amount' => 'Amount',
+            'base_amount' => 'Base amount',
             'paid_amount' => 'Amount paid',
             'outstanding_amount' => 'Outstanding balance',
             'currency' => 'Currency',
@@ -479,21 +491,38 @@ return [
             'status' => 'Status',
             'paid_at' => 'Paid at',
             'student' => 'Student',
+            'classroom' => 'Classroom',
             'academic_year' => 'Academic year',
             'transaction' => 'Transaction',
             'description' => 'Description',
+            'scholarship' => 'Scholarship',
+            'scholarship_discount' => 'Scholarship discount',
+            'apply_scholarship' => 'Apply scholarship discount',
+            'net_amount' => 'Net amount',
+        ],
+        'sections' => [
+            'billing' => 'Billing summary',
+        ],
+        'scholarships' => [
+            'none' => 'No scholarship applied',
+            'unknown_base' => 'Not available',
         ],
         'table' => [
             'reference' => 'Reference',
             'title' => 'Title',
             'student' => 'Student',
             'type' => 'Type',
+            'base_amount' => 'Base',
             'amount' => 'Amount',
+            'discount' => 'Discount',
+            'after_discount' => 'After discount',
             'paid_amount' => 'Paid',
             'outstanding' => 'Outstanding',
+            'scholarship' => 'Scholarship discount',
             'status' => 'Status',
             'due_date' => 'Due date',
             'paid_at' => 'Paid at',
+            'created_at' => 'Created at',
         ],
         'filters' => [
             'type' => 'Type',
@@ -533,6 +562,7 @@ return [
         ],
         'fields' => [
             'title' => 'Title',
+            'academic_year' => 'Academic year',
             'grade_level' => 'Grade level',
             'type' => 'Fee type',
             'amount' => 'Amount',
@@ -543,6 +573,7 @@ return [
         ],
         'table' => [
             'title' => 'Title',
+            'academic_year' => 'Academic year',
             'grade_level' => 'Grade',
             'type' => 'Type',
             'amount' => 'Amount',
@@ -551,6 +582,7 @@ return [
             'is_active' => 'Active',
         ],
         'filters' => [
+            'academic_year' => 'Academic year',
             'grade_level' => 'Grade level',
             'type' => 'Type',
             'is_active' => 'Status',
@@ -776,6 +808,15 @@ return [
             'document_file' => 'File',
             'document_notes' => 'Document notes',
         ],
+        'payment_methods' => [
+            'cash' => 'Cash',
+            'transfer' => 'Bank transfer',
+            'card' => 'Card',
+        ],
+        'gender' => [
+            'male' => 'Male',
+            'female' => 'Female',
+        ],
         'table' => [
             'form_number' => 'Form',
             'guardian' => 'Guardian',
@@ -804,6 +845,9 @@ return [
         ],
         'validation' => [
             'classroom_full' => 'Classroom :classroom is already at full capacity.',
+        ],
+        'helpers' => [
+            'payment_reference' => 'For bank transfers, enter the reference printed on the receipt (e.g. BCA-TRF-2024-001). Cash payments are auto-filled.',
         ],
     ],
 
@@ -837,6 +881,7 @@ return [
             'document_type' => 'Document type',
             'document_file' => 'File',
             'document_notes' => 'Notes',
+            'scholarships' => 'Scholarships',
         ],
         'genders' => [
             'male' => 'Male',
@@ -863,22 +908,38 @@ return [
         'actions' => [
             'promote' => 'Promote / Graduate',
             'target_academic_year' => 'Destination academic year',
-            'target_grade_level' => 'Next grade (optional)',
+            'target_grade_level' => 'Next grade',
             'target_classroom' => 'Specific classroom (optional)',
+            'promote_submit' => 'Promote student',
             'success_promoted' => 'Student promoted to :grade',
             'success_graduated' => 'Student has graduated.',
             'promotion_fees_created' => 'Fees created: :fees.',
             'eligibility_status' => 'Eligibility status',
             'eligibility_ready' => 'Eligible for promotion (all fees paid).',
             'eligibility_pending_fees' => 'Pending fees detected. Approval required before promoting.',
+            'eligibility_pending_graduation_fees' => 'Pending fees detected. Approval required before graduation.',
             'eligibility_pending_scores' => 'Awaiting academic eligibility data.',
             'outstanding_fees' => 'Outstanding fees',
             'outstanding_fees_message' => ':count outstanding fees totaling :amount. Confirm before promoting.',
             'override_outstanding_fees' => 'I confirm promotion despite outstanding fees.',
+            'override_outstanding_graduation_fees' => 'I confirm graduation despite outstanding fees.',
             'outstanding_fees_confirmation_required' => 'Approval is required to continue with outstanding fees.',
             'view_fees' => 'Open fees list',
             'graduation_notice_label' => 'Graduation notice',
             'graduation_notice' => 'This student is at the final grade of the level. Approving this action will mark them as graduated.',
+            'graduated_label' => 'Graduated',
+            'repeat_grade' => 'Mark as not promoted',
+            'repeat_grade_label' => 'Current grade',
+            'repeat_grade_unknown' => 'Grade unavailable',
+            'repeat_current_grade_toggle' => 'Keep current grade (repeat this year)',
+            'repeat_current_grade_description' => 'Student remains in :grade for the selected academic year.',
+            'repeat_submit' => 'Assign repeat year',
+            'repeat_success' => 'Student assigned to repeat :grade for academic year :year.',
+            'repeat_unavailable' => 'Cannot repeat because the current grade is unavailable.',
+            'next_academic_year_required_title' => 'Next academic year required',
+            'next_academic_year_required_description' => 'Create the next academic year before promoting or repeating students.',
+            'open_academic_years' => 'Open Academic Years',
+            'ineligible_grade_label' => 'Awaiting approval before selecting next grade.',
         ],
         'bulk_promotion' => [
             'modal_heading' => 'Send requests to Promotion Approvals',
@@ -891,6 +952,10 @@ return [
             'total_amount' => 'Total billed',
             'total_paid' => 'Total paid',
             'outstanding_amount' => 'Outstanding balance',
+        ],
+        'filters' => [
+            'scholarships' => 'Scholarships',
+            'current_academic_year' => 'Only current academic year',
         ],
         'import' => [
             'legacy_action' => 'Import legacy students',
@@ -906,9 +971,6 @@ return [
                 'completed' => 'Legacy import finished: :success succeeded, :failed failed (out of :total rows).',
             ],
             'assignment_note' => 'Imported from legacy reference :reference',
-        ],
-        'filters' => [
-            'current_academic_year' => 'Only current academic year',
         ],
     ],
     'promotion_approvals' => [
@@ -1048,6 +1110,70 @@ return [
         ],
         'messages' => [
             'all_segments_completed' => 'All assigned segments have been fully evaluated.',
+        ],
+    ],
+    'scholarships' => [
+        'navigation' => [
+            'label' => 'Scholarships',
+        ],
+        'model' => [
+            'singular' => 'Scholarship',
+            'plural' => 'Scholarships',
+        ],
+        'fields' => [
+            'name' => 'Name',
+            'code' => 'Code',
+            'description' => 'Description',
+            'type' => 'Type',
+            'amount' => 'Amount',
+            'discount' => 'Discount',
+            'starts_on' => 'Starts on',
+            'ends_on' => 'Ends on',
+            'period' => 'Period',
+            'is_active' => 'Active',
+            'effective_from' => 'Effective from',
+            'effective_until' => 'Effective until',
+            'notes' => 'Notes',
+        ],
+        'types' => [
+            'percentage' => 'Percentage',
+            'nominal' => 'Nominal amount',
+        ],
+        'statuses' => [
+            'active' => 'Active',
+            'inactive' => 'Inactive',
+        ],
+        'filters' => [
+            'status' => 'Status',
+        ],
+        'sections' => [
+            'student_assignments' => 'Scholarships',
+        ],
+    ],
+    'scholarship_assignments' => [
+        'navigation' => [
+            'label' => 'Scholarship Assignments',
+        ],
+        'model' => [
+            'singular' => 'Scholarship Assignment',
+            'plural' => 'Scholarship Assignments',
+        ],
+        'fields' => [
+            'scholarship' => 'Scholarship',
+            'student' => 'Student',
+            'effective_from' => 'Effective from',
+            'effective_until' => 'Effective until',
+            'is_active' => 'Active',
+            'notes' => 'Notes',
+        ],
+        'filters' => [
+            'scholarship' => 'Scholarship',
+            'student' => 'Student',
+            'status' => 'Status',
+        ],
+        'statuses' => [
+            'active' => 'Active',
+            'inactive' => 'Inactive',
         ],
     ],
 ];

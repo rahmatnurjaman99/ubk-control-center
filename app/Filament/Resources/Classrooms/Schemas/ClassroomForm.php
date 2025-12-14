@@ -6,6 +6,7 @@ namespace App\Filament\Resources\Classrooms\Schemas;
 
 use App\Enums\GradeLevel;
 use App\Enums\SchoolLevel;
+use App\Support\AcademicYearResolver;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -18,11 +19,11 @@ class ClassroomForm
     {
         return $schema
             ->components([
+                self::getAcademicYearComponent(),
                 self::getCodeComponent(),
                 self::getNameComponent(),
                 self::getSchoolLevelComponent(),
                 self::getGradeLevelComponent(),
-                self::getAcademicYearComponent(),
                 self::getCapacityComponent(),
                 self::getHomeroomStaffComponent(),
                 self::getDescriptionComponent(),
@@ -81,6 +82,7 @@ class ClassroomForm
         return Select::make('school_level')
             ->label(__('filament.classrooms.fields.school_level'))
             ->options(SchoolLevel::options())
+            ->native(false)
             ->required();
     }
 
@@ -91,6 +93,7 @@ class ClassroomForm
             ->relationship('academicYear', 'name')
             ->searchable()
             ->preload()
+            ->default(fn (): ?int => AcademicYearResolver::currentId())
             ->required();
     }
 

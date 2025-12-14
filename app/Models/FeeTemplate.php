@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Enums\FeeType;
 use App\Enums\GradeLevel;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -20,12 +21,15 @@ class FeeTemplate extends Model
      * @var list<string>
      */
     protected $fillable = [
+        'academic_year_id',
         'title',
         'grade_level',
         'type',
         'amount',
         'currency',
         'due_in_days',
+        'allow_partial_payment',
+        'require_partial_approval',
         'is_active',
         'description',
     ];
@@ -41,11 +45,18 @@ class FeeTemplate extends Model
             'amount' => 'decimal:2',
             'is_active' => 'boolean',
             'due_in_days' => 'integer',
+            'allow_partial_payment' => 'boolean',
+            'require_partial_approval' => 'boolean',
         ];
     }
 
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);
+    }
+
+    public function academicYear(): BelongsTo
+    {
+        return $this->belongsTo(AcademicYear::class);
     }
 }

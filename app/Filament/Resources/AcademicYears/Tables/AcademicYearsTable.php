@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\AcademicYears\Tables;
 
+use App\Support\Tables\Columns\CreatedAtColumn;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -91,10 +92,8 @@ class AcademicYearsTable
 
     private static function getCreatedAtColumn(): TextColumn
     {
-        return TextColumn::make('created_at')
+        return CreatedAtColumn::make()
             ->label(__('filament.academic_years.table.created_at'))
-            ->dateTime()
-            ->sortable()
             ->toggleable(isToggledHiddenByDefault: true);
     }
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources\SalaryStructures\Tables;
 
 use App\Models\SalaryStructure;
+use App\Support\Tables\Columns\CreatedAtColumn;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -84,6 +85,7 @@ class SalaryStructuresTable
                 IconColumn::make('is_active')
                     ->label(__('filament.salary_structures.table.is_active'))
                     ->boolean(),
+                CreatedAtColumn::make(),
             ])
             ->filters([
                 SelectFilter::make('staff_id')
